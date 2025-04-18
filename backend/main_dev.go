@@ -6,16 +6,24 @@ package main
 import (
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 )
 
 func main() {
-	port := getPort()
+	vite, _ := url.Parse("http://localhost:5173")
+	proxy := httputil.NewSingleHostReverseProxy(vite)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		target := "http://localhost:5173" + r.URL.Path
-		http.Redirect(w, r, target, http.StatusTemporaryRedirect)
+	mux := http.NewServeMux()
+
+	// Backend API
+	mux.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"message":"Hello from backend"}`))
 	})
 
-	log.Printf("[DEV] Proxying frontend to Vite dev server on :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	// Frontend proxy
+	mux.Handle("/", proxy)
+
+	log.Println("[DEV] Listening on :8080 with frontend proxy to :5173")
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }

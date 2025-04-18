@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-//go:embed all:frontend/dist
+//go:embed all:dist
 var staticFiles embed.FS
 
 func main() {

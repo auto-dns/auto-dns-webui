@@ -27,4 +27,6 @@ go.work.sum
 node_modules
 etcd/
 
+dist/
+
 __debug_*
