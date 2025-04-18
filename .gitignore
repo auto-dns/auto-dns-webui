@@ -25,8 +25,9 @@ go.work.sum
 .env
 
 node_modules
-etcd/
+/.devcontainer/etcd/
 
-dist/
+/backend/internal/frontend/dist/*
+!/backend/internal/frontend/dist/.placeholder
 
 __debug_*

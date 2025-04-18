@@ -5,8 +5,8 @@
     "dev": "vite",
     "build": "vite build"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@types/node": "^22.14.1",
     "vite": "^5.0.0"
   }
 }
