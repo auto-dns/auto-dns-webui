@@ -10,8 +10,15 @@ import (
 )
 
 type Config struct {
+	Etcd   EtcdConfig    `mapstructure:"etcd"`
 	Log    LoggingConfig `mapstructure:"log"`
 	Server ServerConfig  `mapstructure:"server"`
+}
+
+type EtcdConfig struct {
+	Host       string `mapstructure:"host"`
+	Port       int    `mapstructure:"port"`
+	PathPrefix string `mapstructure:"path_prefix"`
 }
 
 type LoggingConfig struct {
@@ -70,6 +77,9 @@ func initConfig() error {
 	viper.AutomaticEnv()
 
 	// Set Viper defaults
+	viper.SetDefault("etcd.host", "localhost")
+	viper.SetDefault("etcd.port", 2379)
+	viper.SetDefault("etcd.path_prefix", "/skydns")
 	viper.SetDefault("log.level", "INFO")
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.proxy.enable", false)
@@ -88,6 +98,15 @@ func initConfig() error {
 
 // validate checks for config consistency.
 func (c *Config) validate() error {
+	if c.Etcd.Host == "" {
+		return fmt.Errorf("etcd.host cannot be empty")
+	}
+	if c.Etcd.Port <= 0 || c.Etcd.Port > 65535 {
+		return fmt.Errorf("etcd.port must be a valid TCP port")
+	}
+	if c.Etcd.PathPrefix == "" {
+		return fmt.Errorf("etcd.path_prefix cannot be empty")
+	}
 	validLevels := map[string]struct{}{
 		"TRACE": {}, "DEBUG": {}, "INFO": {}, "WARN": {}, "ERROR": {}, "FATAL": {},
 	}
