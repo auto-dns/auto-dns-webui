@@ -8,6 +8,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/backend/cmd/etcd-dns-webui",
       "env": {},
+      "envFile": "${workspaceFolder}/.devcontainer/.env",
       "buildFlags": ["-tags=dev"]
     },
     {
