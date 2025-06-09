@@ -1,0 +1,55 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #111111;
+  --card-bg: #f9f9f9;
+  --card-border: #ddd;
+  --header-bg: #eef4ff;
+  --table-stripe: #f5f7fa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1e1e1e;
+    --text-color: #f0f0f0;
+    --card-bg: #2a2a2a;
+    --card-border: #444;
+    --header-bg: #333c4a;
+    --table-stripe: #2e2e2e;
+  }
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* Ensure full-width tables are styled consistently */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--card-border);
+}
+
+thead {
+  background-color: var(--header-bg);
+}
+
+tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}

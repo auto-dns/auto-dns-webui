@@ -1,0 +1,49 @@
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 960px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.record-table th,
+.record-table td {
+  border: 1px solid var(--card-border);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.record-table th {
+  background-color: var(--header-bg);
+  font-weight: 600;
+}
+
+.record-table tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}
+
+.record-table button {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  border: 1px solid var(--card-border);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.record-table button:hover {
+  background-color: var(--header-bg);
+}
+
+.expanded-row td {
+  background-color: var(--header-bg);
+}
+
+.expanded-row div {
+  margin: 0.3rem 0;
+}
