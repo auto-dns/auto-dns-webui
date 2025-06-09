@@ -11,8 +11,8 @@
       "installOhMyZshConfig": true
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/prulloac/devcontainer-features/pre-commit:1": {},
     "ghcr.io/mikaello/devcontainer-features/modern-shell-utils:2.0.0": {},
-    "ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
   "customizations": {
