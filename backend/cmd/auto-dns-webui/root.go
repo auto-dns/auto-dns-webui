@@ -71,6 +71,10 @@ func init() {
 	rootCmd.PersistentFlags().String("config", "", "Path to config file (e.g. ./config.yaml)")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 
+	// App Flags
+	rootCmd.PersistentFlags().String("app.hostname", "", "app hostname")
+	viper.BindPFlag("app.hostname", rootCmd.PersistentFlags().Lookup("app.hostname"))
+
 	// Etcd Flags
 	rootCmd.PersistentFlags().String("etcd.host", "", "etcd host to connect to")
 	viper.BindPFlag("etcd.host", rootCmd.PersistentFlags().Lookup("etcd.host"))
@@ -80,6 +84,15 @@ func init() {
 
 	rootCmd.PersistentFlags().String("etcd.path-prefix", "", "etcd key path prefix (e.g., /skydns)")
 	viper.BindPFlag("etcd.path_prefix", rootCmd.PersistentFlags().Lookup("etcd.path-prefix"))
+
+	rootCmd.PersistentFlags().Float64("etcd.lock_ttl", 0, "etcd lock ttl")
+	viper.BindPFlag("etcd.lock_ttl", rootCmd.PersistentFlags().Lookup("etcd.lock_ttl"))
+
+	rootCmd.PersistentFlags().Float64("etcd.lock_timeout", 0, "etcd lock timeout")
+	viper.BindPFlag("etcd.lock_timeout", rootCmd.PersistentFlags().Lookup("etcd.lock_timeout"))
+
+	rootCmd.PersistentFlags().Float64("etcd.lock_retry_interval", 0, "etcd lock retry interval")
+	viper.BindPFlag("etcd.lock_retry_interval", rootCmd.PersistentFlags().Lookup("etcd.lock_retry_interval"))
 
 	// Log Flags
 	rootCmd.PersistentFlags().String("log.level", "", "Log level (e.g., TRACE, DEBUG, INFO, WARN, ERROR, FATAL)")

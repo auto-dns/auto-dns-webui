@@ -31,3 +31,5 @@ node_modules
 !/backend/internal/frontend/dist/.placeholder
 
 __debug_*
+
+/frontend/dist/
