@@ -47,3 +47,24 @@
 .expanded-row div {
   margin: 0.3rem 0;
 }
+
+.record-filter {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+.record-table th {
+  cursor: pointer;
+}
+
+.record-table th:hover {
+  background-color: var(--table-stripe);
+}
