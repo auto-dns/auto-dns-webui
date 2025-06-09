@@ -1,3 +1,3 @@
 #!/bin/sh
-etcdctl --endpoints=http://etcd:2379 put /skydns/com/domain/foo '{"host":"192.168.1.2"}'
-etcdctl --endpoints=http://etcd:2379 put /skydns/dom/carroll/bar '{"host":"192.168.1.3"}'
+etcdctl --endpoints=http://etcd:2379 put /skydns/com/domain/foo '{"created":"2025-06-01T18:42:41Z","force":false,"host":"192.168.1.2","owner_container_id":"sdfasdfff1","owner_container_name":"foo","owner_hostname":"host1","record_type":"A"}'
+etcdctl --endpoints=http://etcd:2379 put /skydns/dom/carroll/bar '{"created":"2025-06-01T18:42:41Z","force":false,"host":"192.168.1.3","owner_container_id":"fasfcxkvj2","owner_container_name":"bar","owner_hostname":"host2","record_type":"A"}'

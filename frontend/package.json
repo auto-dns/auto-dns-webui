@@ -1,5 +1,5 @@
 {
-  "name": "etcd-dns-webui",
+  "name": "auto-dns-webui",
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",

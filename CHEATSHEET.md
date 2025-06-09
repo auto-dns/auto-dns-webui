@@ -1,31 +1,25 @@
 ## Curling etcd
 
-### Health
+### Endpoint status
 
 ```bash
-curl -L etcd:2379/health
+etcdctl --endpoints http://etcd:2379 endpoint status
 ```
 
 ### Version
 
 ```bash
-curl -L etcd:2379/version
-```
-
-### Put key-value pair
-
-```bash
-curl -L etcd:2379/v3/kv/put -X POST -d '{"key":"dGVzdA==","value":"aGVsbG8gd29ybGQ="}'
+etcdctl --endpoints http://etcd:2379 version
 ```
 
 ### Get key-value pair
 
 ```bash
-curl -L etcd:2379/v3/kv/range -X POST -d '{"key":"L3NreWRucy9jb20vZG9tYWluL2Zvbwo="}'
+etcdctl --endpoints http://etcd:2379 get --prefix /skydns/com/domain/foo
 ```
 
-### List all keys
+### List all key-value pairs
 
 ```bash
-curl -L http://etcd:2379/v3/kv/range -X POST -d '{"key":"","range_end":"\\0"}'
+etcdctl --endpoints http://etcd:2379 get --prefix /
 ```

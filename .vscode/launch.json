@@ -6,7 +6,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/backend/cmd/etcd-dns-webui",
+      "program": "${workspaceFolder}/backend/cmd/auto-dns-webui",
       "env": {},
       "envFile": "${workspaceFolder}/.devcontainer/.env",
       "buildFlags": ["-tags=dev"]

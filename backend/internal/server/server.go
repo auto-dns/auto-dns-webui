@@ -4,25 +4,27 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/auto-dns/etcd-dns-webui/internal/api"
-	"github.com/auto-dns/etcd-dns-webui/internal/config"
-	"github.com/auto-dns/etcd-dns-webui/internal/frontend"
+	"github.com/auto-dns/auto-dns-webui/internal/api"
+	"github.com/auto-dns/auto-dns-webui/internal/config"
+	"github.com/auto-dns/auto-dns-webui/internal/frontend"
 	"github.com/rs/zerolog"
 )
 
 type Server struct {
-	cfg    *config.ServerConfig
-	logger zerolog.Logger
-	mux    *http.ServeMux
-	http   *http.Server
+	cfg     *config.ServerConfig
+	logger  zerolog.Logger
+	mux     *http.ServeMux
+	http    *http.Server
+	handler api.HandlerInterface
 }
 
-func New(http *http.Server, mux *http.ServeMux, cfg *config.ServerConfig, logger zerolog.Logger) *Server {
+func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cfg *config.ServerConfig, logger zerolog.Logger) *Server {
 	s := &Server{
-		cfg:    cfg,
-		logger: logger,
-		mux:    mux,
-		http:   http,
+		cfg:     cfg,
+		logger:  logger,
+		mux:     mux,
+		http:    http,
+		handler: handler,
 	}
 	s.registerRoutes()
 	return s
@@ -30,7 +32,7 @@ func New(http *http.Server, mux *http.ServeMux, cfg *config.ServerConfig, logger
 
 func (s *Server) registerRoutes() {
 	// API routes
-	s.mux.HandleFunc("/api/records", api.HandleRecords)
+	s.mux.HandleFunc("/api/records", s.handler.Records)
 
 	// Frontend
 	if s.cfg.Proxy.Enable {
