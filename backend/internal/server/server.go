@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/auto-dns/auto-dns-webui/internal/api"
 	"github.com/auto-dns/auto-dns-webui/internal/config"
@@ -46,5 +47,22 @@ func (s *Server) registerRoutes() {
 
 func (s *Server) Start(ctx context.Context) error {
 	s.logger.Info().Str("addr", s.http.Addr).Msg("Starting HTTP server")
-	return s.http.ListenAndServe()
+	go func() {
+		if err := s.http.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			s.logger.Error().Err(err).Msg("HTTP server failed")
+		}
+	}()
+
+	<-ctx.Done() // Wait for context cancellation
+
+	s.logger.Info().Msg("Shutting down HTTP server")
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.http.Shutdown(shutdownCtx); err != nil {
+		s.logger.Error().Err(err).Msg("Graceful shutdown failed")
+		return err
+	}
+	s.logger.Info().Msg("Server shut down cleanly")
+	return nil
 }
