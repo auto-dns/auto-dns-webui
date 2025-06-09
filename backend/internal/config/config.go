@@ -10,15 +10,23 @@ import (
 )
 
 type Config struct {
+	App    AppConfig     `mapstructure:"app"`
 	Etcd   EtcdConfig    `mapstructure:"etcd"`
 	Log    LoggingConfig `mapstructure:"log"`
 	Server ServerConfig  `mapstructure:"server"`
 }
 
+type AppConfig struct {
+	Hostname string `mapstructure:"hostname"`
+}
+
 type EtcdConfig struct {
-	Host       string `mapstructure:"host"`
-	Port       int    `mapstructure:"port"`
-	PathPrefix string `mapstructure:"path_prefix"`
+	Host              string  `mapstructure:"host"`
+	Port              int     `mapstructure:"port"`
+	PathPrefix        string  `mapstructure:"path_prefix"`
+	LockTTL           float64 `mapstructure:"lock_ttl"`
+	LockTimeout       float64 `mapstructure:"lock_timeout"`
+	LockRetryInterval float64 `mapstructure:"lock_retry_interval"`
 }
 
 type LoggingConfig struct {
@@ -64,22 +72,26 @@ func initConfig() error {
 
 		// Add common config paths
 		if configDir, err := os.UserConfigDir(); err == nil {
-			viper.AddConfigPath(filepath.Join(configDir, "etcd-dns-webui"))
+			viper.AddConfigPath(filepath.Join(configDir, "auto-dns-webui"))
 		}
-		viper.AddConfigPath("/etc/etcd-dns-webui")
+		viper.AddConfigPath("/etc/auto-dns-webui")
 		viper.AddConfigPath("/config")
 		viper.AddConfigPath(".")
 	}
 
 	// Environment variable support
-	viper.SetEnvPrefix("ETCD_DNS_WEBUI")
+	viper.SetEnvPrefix("AUTO_DNS_WEBUI")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
 	// Set Viper defaults
+	viper.SetDefault("app.hostname", "")
 	viper.SetDefault("etcd.host", "localhost")
 	viper.SetDefault("etcd.port", 2379)
 	viper.SetDefault("etcd.path_prefix", "/skydns")
+	viper.SetDefault("etcd.lock_ttl", 5.0)
+	viper.SetDefault("etcd.lock_timeout", 2.0)
+	viper.SetDefault("etcd.lock_retry_interval", 0.1)
 	viper.SetDefault("log.level", "INFO")
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.proxy.enable", false)
@@ -98,6 +110,9 @@ func initConfig() error {
 
 // validate checks for config consistency.
 func (c *Config) validate() error {
+	if c.App.Hostname == "" {
+		return fmt.Errorf("app.hostname cannot be empty")
+	}
 	if c.Etcd.Host == "" {
 		return fmt.Errorf("etcd.host cannot be empty")
 	}
@@ -106,6 +121,15 @@ func (c *Config) validate() error {
 	}
 	if c.Etcd.PathPrefix == "" {
 		return fmt.Errorf("etcd.path_prefix cannot be empty")
+	}
+	if c.Etcd.LockTTL <= 0 {
+		return fmt.Errorf("etcd.lock_ttl must be > 0")
+	}
+	if c.Etcd.LockTimeout <= 0 {
+		return fmt.Errorf("etcd.lock_timeout must be > 0")
+	}
+	if c.Etcd.LockRetryInterval <= 0 {
+		return fmt.Errorf("etcd.lock_retry_interval must be > 0")
 	}
 	validLevels := map[string]struct{}{
 		"TRACE": {}, "DEBUG": {}, "INFO": {}, "WARN": {}, "ERROR": {}, "FATAL": {},

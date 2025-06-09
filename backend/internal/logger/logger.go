@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/auto-dns/etcd-dns-webui/internal/config"
+	"github.com/auto-dns/auto-dns-webui/internal/config"
 	"github.com/rs/zerolog"
 )
 
@@ -28,7 +28,7 @@ func SetupLogger(cfg *config.LoggingConfig) zerolog.Logger {
 		With().
 		Timestamp().
 		Caller().
-		Str("service", "etcd_dns_webui").
+		Str("service", "auto_dns_webui").
 		Logger()
 
 	return logger

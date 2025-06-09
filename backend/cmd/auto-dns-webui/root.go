@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/auto-dns/etcd-dns-webui/internal/app"
-	"github.com/auto-dns/etcd-dns-webui/internal/config"
-	"github.com/auto-dns/etcd-dns-webui/internal/logger"
+	"github.com/auto-dns/auto-dns-webui/internal/app"
+	"github.com/auto-dns/auto-dns-webui/internal/config"
+	"github.com/auto-dns/auto-dns-webui/internal/logger"
 )
 
 type contextKey string
@@ -20,9 +20,9 @@ type contextKey string
 const configKey = contextKey("config")
 
 var rootCmd = &cobra.Command{
-	Use:   "etcd-dns-webui",
-	Short: "A web app server for viewing CoreDNS records stored in etcd",
-	Long:  "A server for a web app used to view CoreDNS records stored in an etcd datastore",
+	Use:   "auto-dns-webui",
+	Short: "A web app server for viewing CoreDNS custom datastore records",
+	Long:  "A server for a web app used to view CoreDNS custom datastore records",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		cfg, err := config.Load()
 		if err != nil {

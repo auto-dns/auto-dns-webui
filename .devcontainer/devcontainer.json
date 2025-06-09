@@ -1,7 +1,7 @@
 {
-  "name": "etcd-dns-webui",
+  "name": "auto-dns-webui",
   "dockerComposeFile": "docker-compose.yaml",
-  "service": "etcd-dns-webui",
+  "service": "auto-dns-webui",
   "workspaceFolder": "/workspace",
   "forwardPorts": [8080, 5173, 2379],
   "features": {

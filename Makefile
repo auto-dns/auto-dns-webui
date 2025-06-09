@@ -3,7 +3,7 @@
 
 FRONTEND_DIR=frontend
 BACKEND_DIR=backend
-OUTPUT_BIN=$(BACKEND_DIR)/etcd-dns-webui
+OUTPUT_BIN=$(BACKEND_DIR)/auto-dns-webui
 
 # --- TASKS ---
 
@@ -36,11 +36,11 @@ prod:
 	cp -r $(FRONTEND_DIR)/dist $(BACKEND_DIR)/dist
 
 	@echo "Building Go backend with embedded frontend..."
-	cd $(BACKEND_DIR) && go build -o etcd-dns-webui
+	cd $(BACKEND_DIR) && go build -o auto-dns-webui
 
 run-prod: prod
 	@echo "Running production binary..."
-	./$(BACKEND_DIR)/etcd-dns-webui
+	./$(BACKEND_DIR)/auto-dns-webui
 
 clean:
 	@echo "Cleaning build output..."
