@@ -1,14 +1,17 @@
 .record-list {
-  max-width: 750px;
+  display: grid;
+  gap: 1rem;
+  padding: 0rem;
   margin: 0 auto;
-  padding: 1rem;
+  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: start;
 }
 
 .record-card {
   background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  margin: 1rem 0;
   padding: 1rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   overflow: hidden;
@@ -27,6 +30,8 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .record-header span {
@@ -113,14 +118,4 @@
 
 .toggle-details-link {
   color: var(--link-color);
-}
-
-@media (max-width: 600px) {
-  .record-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .record-value {
-    text-align: left;
-  }
 }
