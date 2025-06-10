@@ -33,3 +33,5 @@ node_modules
 __debug_*
 
 /frontend/dist/
+
+.DS_Store

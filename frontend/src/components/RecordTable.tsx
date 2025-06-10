@@ -57,7 +57,7 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
   }, [records, filterText, sortKey, sortDirection]);
 
   return (
-    <div className="records-container">
+    <div className="record-table-container">
       <input
         type="text"
         placeholder="Filter records..."
