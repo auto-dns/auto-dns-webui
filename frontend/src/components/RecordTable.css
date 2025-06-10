@@ -28,7 +28,15 @@
   font-weight: 500;
 }
 
-.record-type {
+.record-header span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.record-header span .record-type {
   background-color: var(--header-bg);
   color: var(--text-color);
   padding: 0.25rem 0.6rem;
@@ -43,9 +51,10 @@
   overflow-wrap: anywhere;
 }
 
-.record-arrow {
+.arrow {
   font-size: 1.2rem;
   flex: 0 0 auto;
+  padding-left: .25rem
 }
 
 .record-value {

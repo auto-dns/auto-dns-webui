@@ -28,10 +28,14 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
             onClick={() => toggleExpand(key)}
           >
             <div className="record-header">
-              <span className="record-type">{record.dnsRecord.type}</span>
-              <span className="record-name">{record.dnsRecord.name}</span>
-              <span className="arrow">→</span>
-              <span className="record-value">{record.dnsRecord.value}</span>
+              <span>
+                <span className="record-type">{record.dnsRecord.type}</span>
+                <span className="record-name">{record.dnsRecord.name}</span>
+              </span>
+              <span>
+                <span className="arrow">→</span>
+                <span className="record-value">{record.dnsRecord.value}</span>
+              </span>
             </div>
             <div className="record-details">
               <div><strong>Host:</strong> {record.metadata.hostname}</div>
@@ -40,10 +44,7 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
                 <div><strong>Container ID:</strong> {record.metadata.containerId}</div>
                 <div><strong>Created:</strong> {new Date(record.metadata.created).toLocaleString()}</div>
                 <div><strong>Force:</strong> {record.metadata.force ? 'Yes' : 'No'}</div>
-                <div className='toggle-details-link'>Hide Details ▲</div>
               </Fragment>}
-              {!isExpanded &&
-              <div className='toggle-details-link'>Show Details ▼</div>}
             </div>
           </div>
         );
