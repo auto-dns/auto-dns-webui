@@ -71,6 +71,10 @@
   line-height: 1.5;
 }
 
+.toggle-details-link {
+  color: var(--link-color);
+}
+
 .record-details div {
   margin-bottom: 0.25rem;
   overflow-wrap: anywhere;
