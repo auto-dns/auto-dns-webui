@@ -1,5 +1,5 @@
 // src/components/RecordTable.tsx
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Record } from '../types';
 import './RecordTable.css';
 
@@ -35,17 +35,16 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
             </div>
             <div className="record-details">
               <div><strong>Host:</strong> {record.metadata.hostname}</div>
-              {!isExpanded && <div className='toggle-details-link'>Show Details ▼</div>}
-            </div>
-            {isExpanded && (
-              <div className="record-details">
+              {isExpanded && <Fragment>
                 <div><strong>Container:</strong> {record.metadata.containerName}</div>
                 <div><strong>Container ID:</strong> {record.metadata.containerId}</div>
                 <div><strong>Created:</strong> {new Date(record.metadata.created).toLocaleString()}</div>
                 <div><strong>Force:</strong> {record.metadata.force ? 'Yes' : 'No'}</div>
                 <div className='toggle-details-link'>Hide Details ▲</div>
-              </div>
-            )}
+              </Fragment>}
+              {!isExpanded &&
+              <div className='toggle-details-link'>Show Details ▼</div>}
+            </div>
           </div>
         );
       })}
