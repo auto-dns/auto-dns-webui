@@ -9,6 +9,7 @@
   border: 1px solid var(--card-border);
   border-radius: 8px;
   margin: 1rem 0;
+  padding: 1rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: box-shadow 0.2s ease;
@@ -20,7 +21,7 @@
 }
 
 .record-header {
-  padding: 1rem;
+  padding: 0 0 1rem 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -73,10 +74,7 @@
 }
 
 .record-details {
-  padding: 0.75rem 1rem;
   font-size: 0.875rem;
-  background-color: var(--table-stripe);
-  border-top: 1px solid var(--card-border);
   line-height: 1.5;
 }
 
