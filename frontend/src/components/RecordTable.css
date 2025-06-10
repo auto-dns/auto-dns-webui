@@ -87,6 +87,7 @@
 
 .record-details table {
   font-weight: lighter;
+  color: var(--text-muted);
   width: 100%;
   table-layout: fixed;
   word-break: break-word;
