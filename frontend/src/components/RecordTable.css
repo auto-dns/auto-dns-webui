@@ -40,7 +40,6 @@
 
 .record-name {
   font-weight: 600;
-  flex: 1 1 auto;
   overflow-wrap: anywhere;
 }
 
@@ -52,7 +51,6 @@
 .record-value {
   font-weight: 500;
   color: var(--text-color);
-  flex: 1 1 100%;
   text-align: right;
   overflow-wrap: anywhere;
 }
