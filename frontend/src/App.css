@@ -1,6 +1,7 @@
 :root {
   --bg-color: #ffffff;
   --text-color: #111111;
+  --text-muted: #6a6a6a;
   --link-color: #1b75d0;
   --card-bg: #f9f9f9;
   --card-border: #ddd;
@@ -12,6 +13,7 @@
   :root {
     --bg-color: #1e1e1e;
     --text-color: #f0f0f0;
+    --text-muted: #999999;
     --link-color: #9dbff1;
     --card-bg: #2a2a2a;
     --card-border: #444;

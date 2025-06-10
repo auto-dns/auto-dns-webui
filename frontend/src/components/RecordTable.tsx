@@ -38,13 +38,35 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
               </span>
             </div>
             <div className="record-details">
-              <div><strong>Host:</strong> {record.metadata.hostname}</div>
-              {isExpanded && <Fragment>
-                <div><strong>Container:</strong> {record.metadata.containerName}</div>
-                <div><strong>Container ID:</strong> {record.metadata.containerId}</div>
-                <div><strong>Created:</strong> {new Date(record.metadata.created).toLocaleString()}</div>
-                <div><strong>Force:</strong> {record.metadata.force ? 'Yes' : 'No'}</div>
-              </Fragment>}
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Host</td>
+                    <td>{record.metadata.hostname}</td>
+                  </tr>
+                  {isExpanded &&
+                  <Fragment>
+                    <tr>
+                      <td>Container</td>
+                      <td>{record.metadata.containerName}</td>
+                    </tr>
+                    <tr>
+                      <td>Container ID</td>
+                      <td>
+                        <span className="truncate">{record.metadata.containerId}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Created</td>
+                      <td>{new Date(record.metadata.created).toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                      <td>Force</td>
+                      <td>{record.metadata.force ? 'Yes' : 'No'}</td>
+                    </tr>
+                  </Fragment>}
+                </tbody>
+              </table>
             </div>
           </div>
         );
