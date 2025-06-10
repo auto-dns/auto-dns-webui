@@ -1,12 +1,18 @@
+.record-table-container {
+  overflow-x: auto;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  max-width: 960px;
+}
+
 .record-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 2rem auto;
   font-family: 'Inter', system-ui, sans-serif;
-  max-width: 960px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   background-color: var(--card-bg);
   color: var(--text-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .record-table th,
@@ -14,11 +20,18 @@
   border: 1px solid var(--card-border);
   padding: 0.75rem;
   text-align: left;
+  font-size: 0.9rem;
+  word-break: break-word;
 }
 
 .record-table th {
   background-color: var(--header-bg);
   font-weight: 600;
+  cursor: pointer;
+}
+
+.record-table th:hover {
+  background-color: var(--table-stripe);
 }
 
 .record-table tr:nth-child(even) {
@@ -33,7 +46,7 @@
   background-color: var(--bg-color);
   color: var(--text-color);
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .record-table button:hover {
@@ -48,23 +61,14 @@
   margin: 0.3rem 0;
 }
 
-.record-filter {
-  display: block;
-  margin: 1rem auto;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  width: 90%;
-  max-width: 400px;
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  background-color: var(--card-bg);
-  color: var(--text-color);
-}
+@media (max-width: 600px) {
+  .record-table th,
+  .record-table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
 
-.record-table th {
-  cursor: pointer;
-}
-
-.record-table th:hover {
-  background-color: var(--table-stripe);
+  .record-table button {
+    font-size: 0.75rem;
+  }
 }
