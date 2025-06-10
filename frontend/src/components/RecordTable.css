@@ -57,6 +57,14 @@
   flex: 0 0 auto;
 }
 
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+
 .record-value {
   font-weight: 500;
   color: var(--text-color);
@@ -77,19 +85,33 @@
   line-height: 1.5;
 }
 
+.record-details table {
+  font-weight: lighter;
+  width: 100%;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+.record-details table tr {
+  padding: 0;
+}
+
+.record-details table td {
+  word-break: break-word;
+  padding: 0;
+  vertical-align: top;
+}
+
+.record-details table td:first-of-type {
+  width: 35%;
+}
+
+.record-details table td.value:nth-of-type(2) {
+  width: 65%;
+}
+
 .toggle-details-link {
   color: var(--link-color);
-}
-
-.record-details div {
-  margin-bottom: 0.25rem;
-  overflow-wrap: anywhere;
-}
-
-.record-details strong {
-  display: inline-block;
-  min-width: 120px;
-  font-weight: 600;
 }
 
 @media (max-width: 600px) {
