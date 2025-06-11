@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { Record } from '../types';
 import { getRecordKey } from '../utils/record';
 import '../styles/components/RecordCard.css';
@@ -9,7 +9,7 @@ interface RecordCardProps {
     toggleExpand: (key: string) => void;
 }
 
-const RecordCard: React.FC<RecordCardProps> = ({ record, isExpanded, toggleExpand }) => {
+export default function RecordCard({ record, isExpanded, toggleExpand }: RecordCardProps) {
     const key = getRecordKey(record)
     return (
         <div
@@ -60,5 +60,3 @@ const RecordCard: React.FC<RecordCardProps> = ({ record, isExpanded, toggleExpan
         </div>
     );
 }
-
-export default RecordCard;

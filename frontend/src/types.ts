@@ -16,3 +16,15 @@ export interface Record {
   dnsRecord: DnsRecord;
   metadata: RecordMetadata;
 }
+
+export interface Filters {
+  type: string[];
+  host: string[];
+  containerName: string;
+  value: string;
+}
+
+export interface SortState {
+  key: keyof Record;
+  ascending: boolean;
+}

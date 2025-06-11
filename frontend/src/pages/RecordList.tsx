@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import RecordGrid from '../components/RecordGrid';
 import { Record } from '../types';
 import '../styles/pages/RecordList.css';
 
-const RecordList: React.FC = () => {
+export default function RecordList() {
   const [records, setRecords] = useState<Record[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   
@@ -29,5 +29,3 @@ const RecordList: React.FC = () => {
     </div>
   );
 };
-
-export default RecordList;
