@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import RecordTable from './components/RecordTable'; // ✅ use it!
+import RecordList from './components/RecordList'; // ✅ use it!
 import { Record } from './types';
 import './App.css';
 
@@ -16,7 +16,7 @@ function App() {
   return (
     <div className="records-container">
       <h1>DNS Records</h1>
-      <RecordTable records={records} /> {/* ✅ renders your table */}
+      <RecordList records={records} /> {/* ✅ renders your table */}
     </div>
   );
 }
