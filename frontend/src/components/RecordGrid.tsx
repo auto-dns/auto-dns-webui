@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import RecordCard from '../components/RecordCard';
 import { Record } from '../types';
 import { getRecordKey } from '../utils/record';
@@ -9,7 +9,7 @@ interface RecordGridProps {
     toggleExpand: (key: string) => void;
 }
 
-const RecordGrid: React.FC<RecordGridProps> = ({ records }) => {
+export default function RecordGrid({ records }: RecordGridProps) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   const toggleExpand = (key: string) => {
@@ -25,6 +25,7 @@ const RecordGrid: React.FC<RecordGridProps> = ({ records }) => {
         const isExpanded = expandedKeys.has(key);
         return (
           <RecordCard
+            key={key}
             record={record}
             isExpanded={isExpanded}
             toggleExpand={toggleExpand}
@@ -34,5 +35,3 @@ const RecordGrid: React.FC<RecordGridProps> = ({ records }) => {
     </div>
   );
 };
-
-export default RecordGrid;
