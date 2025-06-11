@@ -1,13 +1,12 @@
-// src/components/RecordTable.tsx
 import React, { Fragment, useState } from 'react';
 import { Record } from '../types';
-import './RecordTable.css';
+import './RecordList.css';
 
-interface RecordTableProps {
+interface RecordListProps {
   records: Record[];
 }
 
-const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
+const RecordList: React.FC<RecordListProps> = ({ records }) => {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   const toggleExpand = (key: string) => {
@@ -75,4 +74,4 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
   );
 };
 
-export default RecordTable;
+export default RecordList;
