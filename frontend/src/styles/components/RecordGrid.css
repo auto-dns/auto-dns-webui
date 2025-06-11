@@ -1,0 +1,9 @@
+.record-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 0rem;
+  margin: 0 auto;
+  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: start;
+}
