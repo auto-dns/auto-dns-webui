@@ -42,7 +42,7 @@
   font-weight: 500;
 }
 
-.record-header span .record-type {
+.record-header span .record-type, .record-header span .arrow {
   background-color: var(--header-bg);
   color: var(--text-color);
   padding: 0.25rem 0.6rem;
@@ -50,16 +50,13 @@
   font-size: 0.85rem;
   font-weight: 600;
   flex: 0 0 auto;
+  min-width: 0.7rem;
+  justify-content: center;
 }
 
 .record-name {
   font-weight: 600;
   overflow-wrap: anywhere;
-}
-
-.arrow {
-  font-size: 1.2rem;
-  flex: 0 0 auto;
 }
 
 .truncate {
