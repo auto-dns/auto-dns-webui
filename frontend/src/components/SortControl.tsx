@@ -5,7 +5,7 @@ interface SortControlProps {
   onChange: (sort: SortState) => void;
 }
 
-export function SortControl({ sort, onChange }: SortControlProps) {
+export default function SortControl({ sort, onChange }: SortControlProps) {
   return (
     <div className="sort-control">
       <label>Sort by:</label>
@@ -15,10 +15,12 @@ export function SortControl({ sort, onChange }: SortControlProps) {
           onChange({ ...sort, key: e.target.value as SortState['key'] })
         }
       >
-        <option value="name">Name</option>
-        <option value="recordType">Type</option>
-        <option value="host">Host</option>
-        <option value="value">Value</option>
+        <option value="dnsRecord.name">Name</option>
+        <option value="dnsRecord.type">Type</option>
+        <option value="dnsRecord.value">Value</option>
+        <option value="metadata.containerName">Container Name</option>
+        <option value="metadata.created">Created Datetime</option>
+        <option value="metadata.hostname">Hostname</option>
       </select>
       <button
         onClick={() => onChange({ ...sort, ascending: !sort.ascending })}

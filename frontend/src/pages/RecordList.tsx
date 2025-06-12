@@ -2,8 +2,9 @@ import { useMemo, useState, useEffect } from 'react';
 import { Filters, Record, SortState } from '../types';
 import SearchBar from '../components/SearchBar';
 import FilterPanel from '../components/FilterPanel';
-// import SortControl from '../components/SortControl';
+import SortControl from '../components/SortControl';
 import RecordGrid from '../components/RecordGrid';
+import { getValueByPath } from '../utils/object';
 import '../styles/pages/RecordList.css';
 
 export default function RecordList() {
@@ -52,8 +53,8 @@ export default function RecordList() {
 
   const sortedRecords = useMemo(() => {
     return [...filteredRecords.sort((a, b) => {
-      const aVal = String(a[sort.key] ?? '').toLowerCase();
-      const bVal = String(b[sort.key] ?? '').toLowerCase();
+      const aVal = String(getValueByPath(a, sort.key) ?? '').toLowerCase();
+      const bVal = String(getValueByPath(b, sort.key) ?? '').toLowerCase();
       return sort.ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
     })]
   }, [filteredRecords, sort]);
@@ -86,6 +87,10 @@ export default function RecordList() {
         availableRecordValues={availableRecordValues}
         availableHostnames={availableHostnames}
         availableForce={availableForce}
+      />
+      <SortControl
+        sort={sort}
+        onChange={setSort}
       />
       <RecordGrid
         records={sortedRecords}
