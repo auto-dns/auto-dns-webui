@@ -1,0 +1,30 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.toolbar input,
+.toolbar select,
+.toolbar button {
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}

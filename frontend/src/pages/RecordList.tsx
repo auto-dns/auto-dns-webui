@@ -9,6 +9,7 @@ import '../styles/pages/RecordList.css';
 
 export default function RecordList() {
   const [records, setRecords] = useState<Record[]>([]);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -81,22 +82,23 @@ export default function RecordList() {
 
   return (
     <div className="record-list">
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-      />
-      <FilterPanel
-        filters={filters}
-        onChange={setFilters}
-        availableRecordTypes={availableRecordTypes}
-        availableRecordValues={availableRecordValues}
-        availableHostnames={availableHostnames}
-        availableForce={availableForce}
-      />
-      <SortControl
-        sort={sort}
-        onChange={setSort}
-      />
+      <div className="toolbar">
+        <SearchBar value={search} onChange={setSearch} />
+        <SortControl sort={sort} onChange={setSort} />
+        <button onClick={() => setShowFilters(s => !s)}>
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </button>
+      </div>
+      {showFilters && (
+        <FilterPanel
+          filters={filters}
+          onChange={setFilters}
+          availableRecordTypes={availableRecordTypes}
+          availableRecordValues={availableRecordValues}
+          availableHostnames={availableHostnames}
+          availableForce={availableForce}
+        />
+      )}
       <RecordGrid
         records={sortedRecords}
         toggleExpand={toggleExpand}
