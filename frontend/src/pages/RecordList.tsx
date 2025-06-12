@@ -20,10 +20,9 @@ export default function RecordList() {
     hostname: [],
     force: [],
   });
-  const [sort, setSort] = useState<SortState>({
-    key: 'dnsRecord.name',
-    ascending: true,
-  });
+  const [sort, setSort] = useState<SortState>([
+    { key: 'dnsRecord.name', ascending: true },
+  ]);
   
   useEffect(() => {
     fetch('/api/records')
@@ -52,11 +51,17 @@ export default function RecordList() {
   }, [records, search, filters]);
 
   const sortedRecords = useMemo(() => {
-    return [...filteredRecords.sort((a, b) => {
-      const aVal = String(getValueByPath(a, sort.key) ?? '').toLowerCase();
-      const bVal = String(getValueByPath(b, sort.key) ?? '').toLowerCase();
-      return sort.ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    })]
+    return [...filteredRecords].sort((a, b) => {
+      for (const criterion of sort) {
+        const aVal = String(getValueByPath(a, criterion.key) ?? '').toLowerCase();
+        const bVal = String(getValueByPath(b, criterion.key) ?? '').toLowerCase();
+        const cmp = aVal.localeCompare(bVal);
+        if (cmp !== 0) {
+          return criterion.ascending ? cmp : -cmp;
+        }
+      }
+      return 0;
+    });
   }, [filteredRecords, sort]);
 
   // Filter options

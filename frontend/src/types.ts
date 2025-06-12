@@ -27,7 +27,15 @@ export interface Filters {
   force: boolean[];
 }
 
-export interface SortState {
-  key: 'dnsRecord.name' | 'dnsRecord.type' | 'dnsRecord.value' | 'metadata.containerName' | 'metadata.created' | 'metadata.hostname';
+export interface SortCriterion {
+  key:
+    | 'dnsRecord.name'
+    | 'dnsRecord.type'
+    | 'dnsRecord.value'
+    | 'metadata.containerName'
+    | 'metadata.created'
+    | 'metadata.hostname';
   ascending: boolean;
 }
+
+export type SortState = SortCriterion[];
