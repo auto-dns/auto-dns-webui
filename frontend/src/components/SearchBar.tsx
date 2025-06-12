@@ -3,7 +3,7 @@ interface SearchBarProps {
   onChange: (val: string) => void;
 }
 
-export function SearchBar({ value, onChange }: SearchBarProps) {
+export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <input
       type="text"

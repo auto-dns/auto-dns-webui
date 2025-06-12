@@ -5,7 +5,7 @@ import '../styles/components/RecordCard.css';
 
 interface RecordCardProps {
     record: Record;
-    isExpanded: Boolean;
+    isExpanded: boolean;
     toggleExpand: (key: string) => void;
 }
 

@@ -18,13 +18,16 @@ export interface Record {
 }
 
 export interface Filters {
+  name: string
   type: string[];
-  host: string[];
+  value: string[];
+  containerId: string;
   containerName: string;
-  value: string;
+  hostname: string[];
+  force: boolean[];
 }
 
 export interface SortState {
-  key: keyof Record;
+  key: 'dnsRecord.name' | 'dnsRecord.type' | 'dnsRecord.value' | 'metadata.containerName' | 'metadata.created' | 'metadata.hostname';
   ascending: boolean;
 }
