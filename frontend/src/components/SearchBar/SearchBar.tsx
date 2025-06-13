@@ -7,12 +7,14 @@ interface SearchBarProps {
 
 export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
-    <input
-      type="text"
-      className={styles.input}
-      placeholder="Search all fields..."
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <div className={styles.searchBar}>
+      <input
+        type="text"
+        className={styles.input}
+        placeholder="Search all fields..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
   );
 }
