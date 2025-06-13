@@ -36,7 +36,7 @@ export default function FilterPanel({
   };
 
   return (
-    <div className={styles.panel}>
+    <div>
       <div className={styles.group}>
         <label>
           Record Name:
@@ -48,19 +48,23 @@ export default function FilterPanel({
         </label>
       </div>
 
-      <StyledFacet
-        label="Record Type"
-        options={availableRecordTypes}
-        selected={filters.type}
-        onToggle={(val) => toggleString('type', val)}
-      />
+      <div className={styles.group}>
+        <StyledFacet
+          label="Record Type"
+          options={availableRecordTypes}
+          selected={filters.type}
+          onToggle={(val) => toggleString('type', val)}
+        />
+      </div>
 
-      <StyledFacet
-        label="Record Value"
-        options={availableRecordValues}
-        selected={filters.value}
-        onToggle={(val) => toggleString('value', val)}
-      />
+      <div className={styles.group}>
+        <StyledFacet
+          label="Record Value"
+          options={availableRecordValues}
+          selected={filters.value}
+          onToggle={(val) => toggleString('value', val)}
+        />
+      </div>
 
       <div className={styles.group}>
         <label>
@@ -88,19 +92,23 @@ export default function FilterPanel({
         </label>
       </div>
 
-      <StyledFacet
-        label="Hostname"
-        options={availableHostnames}
-        selected={filters.hostname}
-        onToggle={(val) => toggleString('hostname', val)}
-      />
+      <div className={styles.group}>
+        <StyledFacet
+          label="Hostname"
+          options={availableHostnames}
+          selected={filters.hostname}
+          onToggle={(val) => toggleString('hostname', val)}
+        />
+      </div>
 
-      <StyledFacet
-        label="Force"
-        options={availableForce.map((f) => f.toString())}
-        selected={filters.force.map((f) => f.toString())}
-        onToggle={(val) => toggleBool('force', val === 'true')}
-      />
+      <div className={styles.group}>
+        <StyledFacet
+          label="Force"
+          options={availableForce.map((f) => f.toString())}
+          selected={filters.force.map((f) => f.toString())}
+          onToggle={(val) => toggleBool('force', val === 'true')}
+        />
+      </div>
     </div>
   );
 }
