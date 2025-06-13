@@ -3,7 +3,6 @@ import { Filters, RecordEntry, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer';
-import SortChips from '../../components/SortChips/SortChips';
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
@@ -67,17 +66,19 @@ export default function RecordList() {
   // Render
   return (
     <div className={styles.recordList}>
-      <div className={styles.toolbar}>
-        <SearchBar value={search} onChange={handleSearchChange} />
+      <header className={styles.stickyHeader}>
         <button
-          onClick={() => setShowFilters((s) => !s)}
-          className={styles.toggleFilters}
-          aria-expanded={showFilters}
-          aria-controls="filterDrawer"
+          className={styles.hamburger}
+          onClick={() => setShowFilters(s => !s)}
+          aria-label='Toggle filters'
         >
-          {showFilters ? '× Close Filters' : '☰ Filters'}
+          ☰
         </button>
-      </div>
+        <h1 className={styles.title}>DNS Records</h1>
+        <div className={styles.searchContainer}>
+          <SearchBar value={search} onChange={handleSearchChange} />
+        </div>
+      </header>
       <div className={styles.mainContent}>
         <FilterSortDrawer
           show={showFilters}
