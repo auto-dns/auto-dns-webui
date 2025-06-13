@@ -71,3 +71,61 @@ You can paste this into ChatGPT later and say:
 “Here’s my design context — I want to implement [component]. Stick with these paradigms.”
 
 Let me know if you want it as a downloadable .md file too.
+
+
+
+
+NEXT:
+
+Next Step: Implement the SortChips UI
+This aligns with your spec:
+
+✅ Sorting UX
+Use chips for active sort criteria:
+
+[Record Name ↑ ✕] [Host ↓ ✕] [+ Add]
+
+Clicking a chip opens a modal to edit sort field + direction
+
+Clicking ✕ removes that sort level
+
+Add opens modal with remaining available sort fields
+
+🔧 What You'll Build
+1. SortChips.tsx
+Displays current sort state as pills:
+
+Record Name ↑ ✕
+
+Hostname ↓ ✕
+
+Handles:
+
+Direction toggle when clicking chip (optional)
+
+Remove sort level (✕)
+
+“+ Add” chip to open modal (or directly add next available field)
+
+2. Optional: SortModal.tsx
+(If you want a modal picker UX instead of inline select)
+
+Could also reuse SortControl inline for now if preferred
+
+✅ Benefits
+Keeps sort UI compact, modern, and mobile-friendly
+
+Matches your design goals of:
+
+Search-first, filter/sort secondary
+Clean visual hierarchy and spacing
+Avoid clunky native elements
+
+📦 Deliverables
+You’ll end up with:
+
+SortChips.tsx component (replaces or complements SortControl)
+
+Optional SortModal.tsx (can defer if you want simple UX first)
+
+Small SCSS file for pill-style sorting UI (SortChips.module.scss)

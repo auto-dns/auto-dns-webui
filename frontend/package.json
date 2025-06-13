@@ -13,10 +13,12 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-react": "^7.37.5",
     "prettier": "^3.5.3",
+    "sass-embedded": "^1.89.2",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "classnames": "^2.5.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   }
