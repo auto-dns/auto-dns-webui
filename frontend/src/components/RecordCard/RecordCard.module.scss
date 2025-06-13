@@ -1,0 +1,128 @@
+@use '../../styles/variables' as *;
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.header {
+  padding-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex-direction: column;
+
+  span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+
+    .type,
+    .arrow {
+      background-color: var(--header-bg);
+      color: var(--text-color);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex: 0 0 auto;
+      min-width: 0.7rem;
+      justify-content: center;
+    }
+  }
+}
+
+.name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.value {
+  font-weight: 500;
+  color: var(--text-color);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+
+.details {
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  table {
+    font-weight: lighter;
+    color: var(--text-muted);
+    width: 100%;
+    table-layout: fixed;
+    word-break: break-word;
+
+    tr {
+      padding: 0;
+    }
+
+    td {
+      word-break: break-word;
+      padding: 0;
+      vertical-align: top;
+
+      &:first-of-type {
+        width: 35%;
+      }
+
+      &.value:nth-of-type(2) {
+        width: 65%;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .details {
+    font-size: 0.8rem;
+
+    table {
+      td:first-of-type {
+        width: 40%;
+      }
+
+      td.value:nth-of-type(2) {
+        width: 60%;
+      }
+    }
+  }
+
+  .truncate {
+    max-width: 100%;
+  }
+}

@@ -21,28 +21,3 @@
     --table-stripe: #2e2e2e;
   }
 }
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: 'Inter', system-ui, sans-serif;
-  margin: 0;
-  padding: 1rem;
-}
-
-h1 {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 1rem 0;
-}
-
-@media (min-width: 768px) {
-  body {
-    padding: 2rem;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-}

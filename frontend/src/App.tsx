@@ -1,5 +1,4 @@
-import RecordList from './pages/RecordList';
-import './styles/App.css';
+import RecordList from './pages/RecordList/RecordList';
 
 export default function App() {
   return (

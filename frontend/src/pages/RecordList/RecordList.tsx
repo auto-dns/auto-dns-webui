@@ -1,11 +1,11 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Filters, Record, SortState } from '../types';
-import SearchBar from '../components/SearchBar';
-import FilterPanel from '../components/FilterPanel';
-import SortControl from '../components/SortControl';
-import RecordGrid from '../components/RecordGrid';
-import { getValueByPath } from '../utils/object';
-import '../styles/pages/RecordList.css';
+import { Filters, Record, SortState } from '../../types';
+import SearchBar from '../../components/SearchBar/SearchBar';
+import FilterPanel from '../../components/FilterPanel/FilterPanel';
+import SortControl from '../../components/SortControl/SortControl';
+import RecordGrid from '../../components/RecordGrid/RecordGrid';
+import { getValueByPath } from '../../utils/object';
+import styles from './RecordList.module.scss';
 
 export default function RecordList() {
   const [records, setRecords] = useState<Record[]>([]);
@@ -24,7 +24,7 @@ export default function RecordList() {
   const [sort, setSort] = useState<SortState>([
     { key: 'dnsRecord.name', ascending: true },
   ]);
-  
+
   useEffect(() => {
     fetch('/api/records')
       .then((res) => res.json())
@@ -33,11 +33,11 @@ export default function RecordList() {
   }, []);
 
   const filteredRecords = useMemo(() => {
-    return records.filter(r => {
+    return records.filter((r) => {
       const matchesSearch = Object.values(r)
         .join(' ')
         .toLowerCase()
-        .includes(search.toLowerCase())
+        .includes(search.toLowerCase());
 
       const matchesName = !filters.name || r.dnsRecord.name.includes(filters.name);
       const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);
@@ -47,7 +47,16 @@ export default function RecordList() {
       const matchesHostname = !filters.hostname.length || filters.hostname.includes(r.metadata.hostname);
       const matchesForce = !filters.force.length || filters.force.includes(r.metadata.force);
 
-      return matchesSearch && matchesName && matchesType && matchesValue && matchesContainerId && matchesContainerName && matchesHostname && matchesForce;
+      return (
+        matchesSearch &&
+        matchesName &&
+        matchesType &&
+        matchesValue &&
+        matchesContainerId &&
+        matchesContainerName &&
+        matchesHostname &&
+        matchesForce
+      );
     });
   }, [records, search, filters]);
 
@@ -65,12 +74,11 @@ export default function RecordList() {
     });
   }, [filteredRecords, sort]);
 
-  // Filter options
   const [availableRecordTypes, availableRecordValues, availableHostnames, availableForce] = useMemo(() => {
-    const availableRecordTypes = [...new Set(records.map(r => r.dnsRecord.type))]; // Sort in alphabetical order, ascending
-    const availableRecordValues = [...new Set(records.map(r => r.dnsRecord.value))]; // Sort in alphabetical order, ascending
-    const availableHostnames = [...new Set(records.map(r => r.metadata.hostname))]; // Sort in alphabetical order, ascending
-    const availableForce = [...new Set(records.map(r => r.metadata.force))] // // Sort true, false
+    const availableRecordTypes = [...new Set(records.map((r) => r.dnsRecord.type))];
+    const availableRecordValues = [...new Set(records.map((r) => r.dnsRecord.value))];
+    const availableHostnames = [...new Set(records.map((r) => r.metadata.hostname))];
+    const availableForce = [...new Set(records.map((r) => r.metadata.force))];
     return [availableRecordTypes, availableRecordValues, availableHostnames, availableForce];
   }, [records]);
 
@@ -81,11 +89,11 @@ export default function RecordList() {
   };
 
   return (
-    <div className="record-list">
-      <div className="toolbar">
+    <div className={styles.recordList}>
+      <div className={styles.toolbar}>
         <SearchBar value={search} onChange={setSearch} />
         <SortControl sort={sort} onChange={setSort} />
-        <button onClick={() => setShowFilters(s => !s)}>
+        <button onClick={() => setShowFilters((s) => !s)}>
           {showFilters ? 'Hide Filters' : 'Show Filters'}
         </button>
       </div>
@@ -99,10 +107,7 @@ export default function RecordList() {
           availableForce={availableForce}
         />
       )}
-      <RecordGrid
-        records={sortedRecords}
-        toggleExpand={toggleExpand}
-      />
+      <RecordGrid records={sortedRecords} toggleExpand={toggleExpand} />
     </div>
   );
-};
+}

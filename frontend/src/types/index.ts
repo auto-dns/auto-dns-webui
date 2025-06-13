@@ -27,14 +27,16 @@ export interface Filters {
   force: boolean[];
 }
 
+export type SortKey =
+  | 'dnsRecord.name'
+  | 'dnsRecord.type'
+  | 'dnsRecord.value'
+  | 'metadata.containerName'
+  | 'metadata.created'
+  | 'metadata.hostname';
+
 export interface SortCriterion {
-  key:
-    | 'dnsRecord.name'
-    | 'dnsRecord.type'
-    | 'dnsRecord.value'
-    | 'metadata.containerName'
-    | 'metadata.created'
-    | 'metadata.hostname';
+  key: SortKey;
   ascending: boolean;
 }
 
