@@ -19,7 +19,8 @@ export function deriveFilterOptions(records: RecordEntry[]) {
 
 export function filterRecords(records: EnrichedRecordEntry[], filters: Filters, search: string) {
   return records.filter((r) => {
-    const matchesSearch = r.searchable.includes(search.toLowerCase());
+    const searchText = search.trim().toLowerCase();
+    const matchesSearch = r.searchable.includes(searchText);
 
     const matchesName = !filters.name || r.dnsRecord.name.includes(filters.name);
     const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);

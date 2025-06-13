@@ -7,7 +7,6 @@ import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords } from '../../utils/filters';
-import classNames from 'classnames';
 import styles from './RecordList.module.scss';
 
 export default function RecordList() {
