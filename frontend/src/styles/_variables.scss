@@ -1,5 +1,6 @@
 :root {
   --bg-color: #ffffff;
+  --bg-muted: #e6e6e6;
   --text-color: #111111;
   --text-muted: #6a6a6a;
   --link-color: #1b75d0;
@@ -7,11 +8,17 @@
   --card-border: #ddd;
   --header-bg: #eef4ff;
   --table-stripe: #f5f7fa;
+  --chip-bg-hover: #e0e0e0;
+  --accent-bg: #1b75d0;
+  --accent-text: #ffffff;
+  --count-text: #555555;
+  --count-bg-selected: #dddddd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #1e1e1e;
+    --bg-muted: #3a3a3a;
     --text-color: #f0f0f0;
     --text-muted: #999999;
     --link-color: #9dbff1;
@@ -19,5 +26,10 @@
     --card-border: #444;
     --header-bg: #333c4a;
     --table-stripe: #2e2e2e;
+    --chip-bg-hover: #3a3a3a;
+    --accent-bg: #9dbff1;
+    --accent-text: #111111;
+    --count-text: #cccccc;
+    --count-bg-selected: #555555;
   }
 }

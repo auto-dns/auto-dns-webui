@@ -6,7 +6,7 @@ import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
-import { filterRecords } from '../../utils/filters';
+import { filterRecords, getFacetCounts } from '../../utils/filters';
 import styles from './RecordList.module.scss';
 
 export default function RecordList() {
@@ -48,6 +48,7 @@ export default function RecordList() {
   const enrichedRecords = useMemo(() => enrichSearchable(records), [records]);
   const filteredRecords = useMemo(() => filterRecords(enrichedRecords, filters, search), [enrichedRecords, filters, search]);
   const sortedRecords = useMemo(() => sortRecords(filteredRecords, sort), [filteredRecords, sort]);
+  const facetCounts = useMemo(() => getFacetCounts(filteredRecords, filters), [filteredRecords, filters]);
   const {recordTypes, recordValues, hostnames, forceValues} = useMemo(() => deriveFilterOptions(records), [records]);
 
   // Set callbacks
@@ -102,6 +103,7 @@ export default function RecordList() {
           availableRecordValues={recordValues}
           availableHostnames={hostnames}
           availableForce={forceValues}
+          facetCounts={facetCounts}
         />
         <RecordGrid records={sortedRecords} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
       </div>

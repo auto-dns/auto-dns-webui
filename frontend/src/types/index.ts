@@ -31,6 +31,13 @@ export interface Filters {
   force: boolean[];
 }
 
+export interface FacetCounts {
+  type: Record<string, number>;
+  value: Record<string, number>;
+  hostname: Record<string, number>;
+  force: Record<'true' | 'false', number>;
+}
+
 export type SortKey =
   | 'dnsRecord.name'
   | 'dnsRecord.type'

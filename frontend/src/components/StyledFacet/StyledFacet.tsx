@@ -5,9 +5,10 @@ interface StyledFacetProps {
   options: string[];
   selected: string[];
   onToggle: (value: string) => void;
+  counts?: Record<string, number>;
 }
 
-export default function StyledFacet({ label, options, selected, onToggle }: StyledFacetProps) {
+export default function StyledFacet({ label, options, selected, onToggle, counts }: StyledFacetProps) {
   return (
     <div className={styles.group}>
       {label && <div className={styles.label}>{label}</div>}
@@ -21,7 +22,8 @@ export default function StyledFacet({ label, options, selected, onToggle }: Styl
               className={`${styles.facet} ${isSelected ? styles.selected : ''}`}
               onClick={() => onToggle(option)}
             >
-              {option}
+              <span className={styles.optionLabel}>{option}</span>
+              <span className={styles.count}>{counts?.[option] ?? 0}</span>
             </button>
           );
         })}
