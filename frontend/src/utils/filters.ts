@@ -1,4 +1,4 @@
-import { EnrichedRecordEntry, RecordEntry, Filters } from '../types';
+import { EnrichedRecordEntry, RecordEntry, Filters, FacetCounts } from '../types';
 
 function getUniqueSorted<T>(items: T[]): T[] {
   const unique = Array.from(new Set(items));
@@ -41,4 +41,29 @@ export function filterRecords(records: EnrichedRecordEntry[], filters: Filters, 
       matchesForce
     );
   });
+}
+
+export function getFacetCounts(records: RecordEntry[], activeFilters: Filters): FacetCounts {
+  const counts: {
+    type: Record<string, number>;
+    value: Record<string, number>;
+    hostname: Record<string, number>;
+    force: Record<string, number>;
+  } = {
+    type: {},
+    value: {},
+    hostname: {},
+    force: {},
+  };
+
+  for (const record of records) {
+    const { dnsRecord, metadata } = record;
+
+    counts.type[dnsRecord.type] = (counts.type[dnsRecord.type] || 0) + 1;
+    counts.value[dnsRecord.value] = (counts.value[dnsRecord.value] || 0) + 1;
+    counts.hostname[metadata.hostname] = (counts.hostname[metadata.hostname] || 0) + 1;
+    counts.force[metadata.force.toString()] = (counts.force[metadata.force.toString()] || 0) + 1;
+  }
+
+  return counts;
 }

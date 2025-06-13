@@ -1,4 +1,4 @@
-import { Filters } from '../../types';
+import { Filters, FacetCounts } from '../../types';
 import StyledFacet from '../StyledFacet/StyledFacet';
 import styles from './FilterPanel.module.scss';
 
@@ -9,6 +9,7 @@ interface FilterPanelProps {
   availableRecordValues: string[];
   availableHostnames: string[];
   availableForce: boolean[];
+  facetCounts: FacetCounts;
 }
 
 export default function FilterPanel({
@@ -18,6 +19,7 @@ export default function FilterPanel({
   availableRecordValues,
   availableHostnames,
   availableForce,
+  facetCounts,
 }: FilterPanelProps) {
   const toggleString = (field: keyof Filters, value: string) => {
     const current = filters[field] as string[];
@@ -54,6 +56,7 @@ export default function FilterPanel({
           options={availableRecordTypes}
           selected={filters.type}
           onToggle={(val) => toggleString('type', val)}
+          counts={facetCounts.type}
         />
       </div>
 
@@ -63,6 +66,7 @@ export default function FilterPanel({
           options={availableRecordValues}
           selected={filters.value}
           onToggle={(val) => toggleString('value', val)}
+          counts={facetCounts.value}
         />
       </div>
 
@@ -98,6 +102,7 @@ export default function FilterPanel({
           options={availableHostnames}
           selected={filters.hostname}
           onToggle={(val) => toggleString('hostname', val)}
+          counts={facetCounts.hostname}
         />
       </div>
 
@@ -107,6 +112,7 @@ export default function FilterPanel({
           options={availableForce.map((f) => f.toString())}
           selected={filters.force.map((f) => f.toString())}
           onToggle={(val) => toggleBool('force', val === 'true')}
+          counts={facetCounts.force}
         />
       </div>
     </div>

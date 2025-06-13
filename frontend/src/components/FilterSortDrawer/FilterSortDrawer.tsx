@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { SortState, SortCriterion, Filters } from '../../types';
+import { SortState, SortCriterion, Filters, FacetCounts } from '../../types';
 import SortChips from '../SortChips/SortChips';
 import FilterPanel from '../FilterPanel/FilterPanel';
 import styles from './FilterSortDrawer.module.scss';
@@ -16,6 +16,7 @@ interface Props {
   availableRecordValues: string[];
   availableHostnames: string[];
   availableForce: boolean[];
+  facetCounts: FacetCounts;
 }
 
 export default function FilterSortDrawer({
@@ -30,6 +31,7 @@ export default function FilterSortDrawer({
   availableRecordValues,
   availableHostnames,
   availableForce,
+  facetCounts,
 }: Props) {
   return (
     <div
@@ -61,6 +63,7 @@ export default function FilterSortDrawer({
             availableRecordValues={availableRecordValues}
             availableHostnames={availableHostnames}
             availableForce={availableForce}
+            facetCounts={facetCounts}
           />
         </div>
       </div>
