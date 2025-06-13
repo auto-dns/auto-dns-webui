@@ -7,6 +7,7 @@ import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords } from '../../utils/filters';
+import classNames from 'classnames';
 import styles from './RecordList.module.scss';
 
 export default function RecordList() {
@@ -27,6 +28,7 @@ export default function RecordList() {
   const [sort, setSort] = useState<SortState>([
     { key: 'dnsRecord.name', ascending: true },
   ]);
+  const [scrolled, setScrolled] = useState(false);
 
   // Use effects
   useEffect(() => {
@@ -34,6 +36,13 @@ export default function RecordList() {
       .then((res) => res.json())
       .then((data) => setRecords(data))
       .catch((err) => console.error('Failed to fetch records:', err));
+  }, []);
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Memoize aggregated data
@@ -67,18 +76,20 @@ export default function RecordList() {
   return (
     <div className={styles.recordList}>
       <header className={styles.stickyHeader}>
-        <button
-          className={styles.hamburger}
-          onClick={() => setShowFilters(s => !s)}
-          aria-label='Toggle filters'
-        >
-          ☰
-        </button>
-        <h1 className={styles.title}>DNS Records</h1>
-        <div className={styles.searchContainer}>
-          <SearchBar value={search} onChange={handleSearchChange} />
+        <div className={styles.toolbar}>
+          <button
+            className={styles.hamburger}
+            onClick={() => setShowFilters(s => !s)}
+            aria-label='Toggle filters'
+          >
+            ☰
+          </button>
+          <div className={styles.searchWrapper}>
+            <SearchBar value={search} onChange={handleSearchChange} />
+          </div>
         </div>
       </header>
+      <h2 className={styles.pageTitle}>DNS Records</h2>
       <div className={styles.mainContent}>
         <FilterSortDrawer
           show={showFilters}
