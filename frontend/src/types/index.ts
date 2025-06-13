@@ -12,9 +12,13 @@ export interface RecordMetadata {
   force: boolean;
 }
 
-export interface Record {
+export interface RecordEntry {
   dnsRecord: DnsRecord;
   metadata: RecordMetadata;
+}
+
+export interface EnrichedRecordEntry extends RecordEntry {
+  searchable: string;
 }
 
 export interface Filters {

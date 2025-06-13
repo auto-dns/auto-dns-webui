@@ -1,10 +1,10 @@
 import { Fragment } from 'react';
-import { Record } from '../../types';
+import { RecordEntry } from '../../types';
 import { getRecordKey } from '../../utils/record';
 import styles from './RecordCard.module.scss';
 
 interface RecordCardProps {
-  record: Record;
+  record: RecordEntry;
   isExpanded: boolean;
   toggleExpand: (key: string) => void;
 }
