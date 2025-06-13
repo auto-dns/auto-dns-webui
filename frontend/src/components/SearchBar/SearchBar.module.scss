@@ -1,0 +1,15 @@
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+
+  &:focus {
+    border-color: var(--link-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(27, 117, 208, 0.2);
+  }
+}

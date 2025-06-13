@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
-import { SortState, SortCriterion } from '../types';
+import { useMemo } from 'react';
+import { SortState, SortCriterion, SortKey } from '../../types';
+import styles from './SortControl.module.scss';
 
 interface SortControlProps {
   sort: SortState;
@@ -7,27 +8,21 @@ interface SortControlProps {
 }
 
 export default function SortControl({ sort, onChange }: SortControlProps) {
-  const optionLabelsByField = {
+  const optionLabelsByField: Record<SortKey, string> = {
     'dnsRecord.name': 'Record Name',
     'dnsRecord.type': 'Record Type',
     'dnsRecord.value': 'Record Value',
     'metadata.containerName': 'Container Name',
     'metadata.created': 'Created Datetime',
     'metadata.hostname': 'Hostname',
-  }
-  const sortOptions = [
-    'dnsRecord.name',
-    'dnsRecord.type',
-    'dnsRecord.value',
-    'metadata.containerName',
-    'metadata.created',
-    'metadata.hostname',
-  ];
+  } as const;
+
+  const sortOptions = Object.keys(optionLabelsByField) as SortKey[];
 
   const [usedFields, availableSortOptions] = useMemo(() => {
-    const usedFields = new Set(sort.map(criterion => String(criterion.key)));
-    const availableSortOptions = sortOptions.filter(sortOption => !usedFields.has(sortOption));
-    return [usedFields, availableSortOptions]
+    const used = new Set(sort.map((s) => s.key));
+    const available = sortOptions.filter((key) => !used.has(key));
+    return [used, available];
   }, [sort]);
 
   const handleKeyChange = (index: number, newKey: SortCriterion['key']) => {
@@ -46,8 +41,10 @@ export default function SortControl({ sort, onChange }: SortControlProps) {
   };
 
   const addSortLevel = () => {
-    const firstAvailableOption = availableSortOptions[0] as SortCriterion['key'];
-    onChange([...sort, { key: firstAvailableOption, ascending: true }]);
+    const nextKey = availableSortOptions[0] as SortCriterion['key'];
+    if (nextKey) {
+      onChange([...sort, { key: nextKey, ascending: true }]);
+    }
   };
 
   const removeSortLevel = (index: number) => {
@@ -56,27 +53,22 @@ export default function SortControl({ sort, onChange }: SortControlProps) {
   };
 
   return (
-    <div className="sort-control">
+    <div className={styles.control}>
       <label>Sort by:</label>
       {sort.map((criterion, i) => (
-        <div key={i} className="sort-criterion">
+        <div key={i} className={styles.criterion}>
           <select
             value={criterion.key}
             onChange={(e) => handleKeyChange(i, e.target.value as SortCriterion['key'])}
           >
-            <option
-              key={criterion.key}
-              value={criterion.key}
-            >
-              {optionLabelsByField?.[criterion.key] || 'Unknown'}
-            </option>
+            <option value={criterion.key}>{optionLabelsByField[criterion.key]}</option>
             {availableSortOptions.map((field) => (
               <option
                 key={field}
                 value={field}
                 disabled={sort.some((c, idx) => idx !== i && c.key === field)}
               >
-                {optionLabelsByField?.[field] || 'Unknown'}
+                {optionLabelsByField[field]}
               </option>
             ))}
           </select>
@@ -84,14 +76,15 @@ export default function SortControl({ sort, onChange }: SortControlProps) {
             {criterion.ascending ? '↑' : '↓'}
           </button>
           {sort.length > 1 && (
-            <button onClick={() => removeSortLevel(i)} title="Remove sort level">✕</button>
+            <button onClick={() => removeSortLevel(i)} title="Remove sort level">
+              ✕
+            </button>
           )}
         </div>
       ))}
-      <button
-        disabled={!availableSortOptions.length}
-        onClick={addSortLevel}
-      >+ Add Sort Level</button>
+      <button disabled={!availableSortOptions.length} onClick={addSortLevel}>
+        + Add Sort Level
+      </button>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import RecordCard from '../components/RecordCard';
-import { Record } from '../types';
-import { getRecordKey } from '../utils/record';
-import '../styles/components/RecordGrid.css';
+import RecordCard from '../RecordCard/RecordCard';
+import { Record } from '../../types';
+import { getRecordKey } from '../../utils/record';
+import styles from './RecordGrid.module.scss';
 
 interface RecordGridProps {
-    records: Record[];
-    toggleExpand: (key: string) => void;
+  records: Record[];
+  toggleExpand: (key: string) => void;
 }
 
 export default function RecordGrid({ records }: RecordGridProps) {
@@ -19,7 +19,7 @@ export default function RecordGrid({ records }: RecordGridProps) {
   };
 
   return (
-    <div className="record-grid">
+    <div className={styles.grid}>
       {records.map((record) => {
         const key = getRecordKey(record);
         const isExpanded = expandedKeys.has(key);
@@ -34,4 +34,4 @@ export default function RecordGrid({ records }: RecordGridProps) {
       })}
     </div>
   );
-};
+}
