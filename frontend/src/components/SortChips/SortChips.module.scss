@@ -1,4 +1,4 @@
-.chips {
+.sortChips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -46,3 +46,19 @@
 .addButton:hover {
   background-color: var(--chip-bg-hover);
 }
+
+.addButton {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--chip-bg-hover);
+  }
+}
+

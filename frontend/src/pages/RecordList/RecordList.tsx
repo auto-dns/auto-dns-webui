@@ -69,7 +69,6 @@ export default function RecordList() {
     <div className={styles.recordList}>
       <div className={styles.toolbar}>
         <SearchBar value={search} onChange={handleSearchChange} />
-        <SortChips sort={sort} onChange={handleSortChange} availableFields={SORT_KEYS} />
         <button
           onClick={() => setShowFilters((s) => !s)}
           className={styles.toggleFilters}
@@ -84,7 +83,10 @@ export default function RecordList() {
           show={showFilters}
           onClose={() => setShowFilters(false)}
           filters={filters}
-          onChange={handleFilterChange}
+          sort={sort}
+          onSortChange={handleSortChange}
+          availableSortFields={SORT_KEYS}
+          onFilterChange={handleFilterChange}
           availableRecordTypes={recordTypes}
           availableRecordValues={recordValues}
           availableHostnames={hostnames}
