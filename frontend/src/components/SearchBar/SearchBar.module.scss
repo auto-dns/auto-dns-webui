@@ -1,3 +1,9 @@
+.searchBar {
+  flex: 1 1 auto;
+  min-width: 0; // ensures it can shrink properly in flex containers
+  width: 100%;
+}
+
 .input {
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -6,6 +12,7 @@
   border: 1px solid var(--card-border);
   background-color: var(--bg-color);
   color: var(--text-color);
+  box-sizing: border-box;
 
   &:focus {
     border-color: var(--link-color);
