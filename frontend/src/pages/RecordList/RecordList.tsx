@@ -2,13 +2,13 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Filters, RecordEntry, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
-import FilterPanel from '../../components/FilterPanel/FilterPanel';
+import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer';
 import SortChips from '../../components/SortChips/SortChips';
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
-import styles from './RecordList.module.scss';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords } from '../../utils/filters';
+import styles from './RecordList.module.scss';
 
 export default function RecordList() {
   // Declare state
@@ -79,8 +79,10 @@ export default function RecordList() {
           {showFilters ? '× Close Filters' : '☰ Filters'}
         </button>
       </div>
-      {showFilters && (
-        <FilterPanel
+      <div className={styles.mainContent}>
+        <FilterSortDrawer
+          show={showFilters}
+          onClose={() => setShowFilters(false)}
           filters={filters}
           onChange={handleFilterChange}
           availableRecordTypes={recordTypes}
@@ -88,8 +90,8 @@ export default function RecordList() {
           availableHostnames={hostnames}
           availableForce={forceValues}
         />
-      )}
-      <RecordGrid records={sortedRecords} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
+        <RecordGrid records={sortedRecords} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
+      </div>
     </div>
   );
 }

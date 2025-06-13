@@ -4,6 +4,16 @@
   gap: 1rem;
 }
 
+.mainContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
 // Toolbar styling
 .toolbar {
   display: flex;
