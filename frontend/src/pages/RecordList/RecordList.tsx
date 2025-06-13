@@ -1,5 +1,6 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Filters, Record, SortState } from '../../types';
+import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterPanel from '../../components/FilterPanel/FilterPanel';
 import SortControl from '../../components/SortControl/SortControl';
@@ -32,12 +33,16 @@ export default function RecordList() {
       .catch((err) => console.error('Failed to fetch records:', err));
   }, []);
 
+  const enrichedRecords = useMemo(() => {
+    return records.map((r) => ({
+      ...r,
+      searchable: Object.values(r).join(' ').toLowerCase(),
+    }));
+  }, [records]);
+
   const filteredRecords = useMemo(() => {
-    return records.filter((r) => {
-      const matchesSearch = Object.values(r)
-        .join(' ')
-        .toLowerCase()
-        .includes(search.toLowerCase());
+    return enrichedRecords.filter((r) => {
+      const matchesSearch = r.searchable.includes(search.toLowerCase());
 
       const matchesName = !filters.name || r.dnsRecord.name.includes(filters.name);
       const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);
@@ -70,41 +75,54 @@ export default function RecordList() {
           return criterion.ascending ? cmp : -cmp;
         }
       }
-      return 0;
+      return a.dnsRecord.name.localeCompare(b.dnsRecord.name);
     });
   }, [filteredRecords, sort]);
 
-  const [availableRecordTypes, availableRecordValues, availableHostnames, availableForce] = useMemo(() => {
-    const availableRecordTypes = [...new Set(records.map((r) => r.dnsRecord.type))];
-    const availableRecordValues = [...new Set(records.map((r) => r.dnsRecord.value))];
-    const availableHostnames = [...new Set(records.map((r) => r.metadata.hostname))];
-    const availableForce = [...new Set(records.map((r) => r.metadata.force))];
-    return [availableRecordTypes, availableRecordValues, availableHostnames, availableForce];
-  }, [records]);
+  const {recordTypes, recordValues, hostnames, forceValues} = useMemo(() => deriveFilterOptions(records), [records]);
 
-  const toggleExpand = (key: string) => {
-    const updated = new Set(expandedKeys);
-    updated.has(key) ? updated.delete(key) : updated.add(key);
-    setExpandedKeys(updated);
-  };
+  const toggleExpand = useCallback((key: string) => {
+    setExpandedKeys(prev => {
+      const updated = new Set(prev);
+      updated.has(key) ? updated.delete(key) : updated.add(key);
+      return updated;
+    });
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const handleFilterChange = useCallback((next: Filters) => {
+    setFilters(next);
+  }, []);
+
+  const handleSortChange = useCallback((next: SortState) => {
+    setSort(next);
+  }, []);
 
   return (
     <div className={styles.recordList}>
       <div className={styles.toolbar}>
-        <SearchBar value={search} onChange={setSearch} />
-        <SortControl sort={sort} onChange={setSort} />
-        <button onClick={() => setShowFilters((s) => !s)}>
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        <SearchBar value={search} onChange={handleSearchChange} />
+        <SortControl sort={sort} onChange={handleSortChange} />
+        <button
+          onClick={() => setShowFilters((s) => !s)}
+          className={styles.toggleFilters}
+          aria-expanded={showFilters}
+          aria-controls="filterDrawer"
+        >
+          {showFilters ? '× Close Filters' : '☰ Filters'}
         </button>
       </div>
       {showFilters && (
         <FilterPanel
           filters={filters}
-          onChange={setFilters}
-          availableRecordTypes={availableRecordTypes}
-          availableRecordValues={availableRecordValues}
-          availableHostnames={availableHostnames}
-          availableForce={availableForce}
+          onChange={handleFilterChange}
+          availableRecordTypes={recordTypes}
+          availableRecordValues={recordValues}
+          availableHostnames={hostnames}
+          availableForce={forceValues}
         />
       )}
       <RecordGrid records={sortedRecords} toggleExpand={toggleExpand} />

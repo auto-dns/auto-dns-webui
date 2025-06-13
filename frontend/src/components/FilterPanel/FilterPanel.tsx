@@ -1,5 +1,5 @@
 import { Filters } from '../../types';
-import { capitalizeFirstLetter } from '../../utils/text';
+import StyledFacet from '../StyledFacet/StyledFacet';
 import styles from './FilterPanel.module.scss';
 
 interface FilterPanelProps {
@@ -11,22 +11,29 @@ interface FilterPanelProps {
   availableForce: boolean[];
 }
 
-export default function FilterPanel({ filters, onChange, availableRecordTypes, availableRecordValues, availableHostnames, availableForce }: FilterPanelProps) {
-  function toggleString(field: keyof Filters, value: string) {
+export default function FilterPanel({
+  filters,
+  onChange,
+  availableRecordTypes,
+  availableRecordValues,
+  availableHostnames,
+  availableForce,
+}: FilterPanelProps) {
+  const toggleString = (field: keyof Filters, value: string) => {
     const current = filters[field] as string[];
     const next = current.includes(value)
       ? current.filter((v) => v !== value)
       : [...current, value];
     onChange({ ...filters, [field]: next });
-  }
+  };
 
-  function toggleBool(field: keyof Filters, value: boolean) {
+  const toggleBool = (field: keyof Filters, value: boolean) => {
     const current = filters[field] as boolean[];
     const next = current.includes(value)
       ? current.filter((v) => v !== value)
       : [...current, value];
     onChange({ ...filters, [field]: next });
-  }
+  };
 
   return (
     <div className={styles.panel}>
@@ -41,41 +48,19 @@ export default function FilterPanel({ filters, onChange, availableRecordTypes, a
         </label>
       </div>
 
-      <div className={styles.group}>
-        <fieldset>
-          <legend>Record Type</legend>
-          <div className={styles.checkboxList}>
-            {availableRecordTypes.map((type) => (
-              <label key={type}>
-                <input
-                  type="checkbox"
-                  checked={filters.type.includes(type)}
-                  onChange={() => toggleString('type', type)}
-                />
-                {type}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
+      <StyledFacet
+        label="Record Type"
+        options={availableRecordTypes}
+        selected={filters.type}
+        onToggle={(val) => toggleString('type', val)}
+      />
 
-      <div className={styles.group}>
-        <fieldset>
-          <legend>Record Value</legend>
-          <div className={styles.checkboxList}>
-            {availableRecordValues.map((value) => (
-              <label key={value}>
-                <input
-                  type="checkbox"
-                  checked={filters.type.includes(value)}
-                  onChange={() => toggleString('value', value)}
-                />
-                {value}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
+      <StyledFacet
+        label="Record Value"
+        options={availableRecordValues}
+        selected={filters.value}
+        onToggle={(val) => toggleString('value', val)}
+      />
 
       <div className={styles.group}>
         <label>
@@ -83,7 +68,9 @@ export default function FilterPanel({ filters, onChange, availableRecordTypes, a
           <input
             type="text"
             value={filters.containerName}
-            onChange={(e) => onChange({ ...filters, containerName: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...filters, containerName: e.target.value })
+            }
           />
         </label>
       </div>
@@ -94,46 +81,26 @@ export default function FilterPanel({ filters, onChange, availableRecordTypes, a
           <input
             type="text"
             value={filters.containerId}
-            onChange={(e) => onChange({ ...filters, containerId: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...filters, containerId: e.target.value })
+            }
           />
         </label>
       </div>
 
-      <div className={styles.group}>
-        <fieldset>
-          <legend>Hostname</legend>
-          <div className={styles.checkboxList}>
-            {availableHostnames.map((hostname) => (
-              <label key={hostname}>
-                <input
-                  type="checkbox"
-                  checked={filters.hostname.includes(hostname)}
-                  onChange={() => toggleString('hostname', hostname)}
-                />
-                {hostname}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
+      <StyledFacet
+        label="Hostname"
+        options={availableHostnames}
+        selected={filters.hostname}
+        onToggle={(val) => toggleString('hostname', val)}
+      />
 
-      <div className={styles.group}>
-        <fieldset>
-          <legend>Force</legend>
-          <div className={styles.checkboxList}>
-            {availableForce.map((force) => (
-              <label key={availableForce.toString()}>
-                <input
-                  type="checkbox"
-                  checked={filters.force.includes(force)}
-                  onChange={() => toggleBool('force', force)}
-                />
-                {capitalizeFirstLetter(force.toString())}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
+      <StyledFacet
+        label="Force"
+        options={availableForce.map((f) => f.toString())}
+        selected={filters.force.map((f) => f.toString())}
+        onToggle={(val) => toggleBool('force', val === 'true')}
+      />
     </div>
   );
 }
