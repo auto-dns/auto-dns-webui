@@ -1,23 +1,16 @@
 import { useState } from 'react';
 import RecordCard from '../RecordCard/RecordCard';
-import { Record } from '../../types';
+import { RecordEntry } from '../../types';
 import { getRecordKey } from '../../utils/record';
 import styles from './RecordGrid.module.scss';
 
 interface RecordGridProps {
-  records: Record[];
+  records: RecordEntry[];
+  expandedKeys: Set<string>;
   toggleExpand: (key: string) => void;
 }
 
-export default function RecordGrid({ records }: RecordGridProps) {
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
-
-  const toggleExpand = (key: string) => {
-    const updated = new Set(expandedKeys);
-    updated.has(key) ? updated.delete(key) : updated.add(key);
-    setExpandedKeys(updated);
-  };
-
+export default function RecordGrid({ records, expandedKeys, toggleExpand }: RecordGridProps) {
   return (
     <div className={styles.grid}>
       {records.map((record) => {

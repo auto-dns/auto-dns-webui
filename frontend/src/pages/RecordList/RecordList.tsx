@@ -1,15 +1,18 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { Filters, Record, SortState } from '../../types';
+import { Filters, RecordEntry, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterPanel from '../../components/FilterPanel/FilterPanel';
-import SortControl from '../../components/SortControl/SortControl';
+import SortChips from '../../components/SortChips/SortChips';
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
-import { getValueByPath } from '../../utils/object';
 import styles from './RecordList.module.scss';
+import { SORT_KEYS, sortRecords } from '../../utils/sort';
+import { enrichSearchable } from '../../utils/record';
+import { filterRecords } from '../../utils/filters';
 
 export default function RecordList() {
-  const [records, setRecords] = useState<Record[]>([]);
+  // Declare state
+  const [records, setRecords] = useState<RecordEntry[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
@@ -26,6 +29,7 @@ export default function RecordList() {
     { key: 'dnsRecord.name', ascending: true },
   ]);
 
+  // Use effects
   useEffect(() => {
     fetch('/api/records')
       .then((res) => res.json())
@@ -33,54 +37,13 @@ export default function RecordList() {
       .catch((err) => console.error('Failed to fetch records:', err));
   }, []);
 
-  const enrichedRecords = useMemo(() => {
-    return records.map((r) => ({
-      ...r,
-      searchable: Object.values(r).join(' ').toLowerCase(),
-    }));
-  }, [records]);
-
-  const filteredRecords = useMemo(() => {
-    return enrichedRecords.filter((r) => {
-      const matchesSearch = r.searchable.includes(search.toLowerCase());
-
-      const matchesName = !filters.name || r.dnsRecord.name.includes(filters.name);
-      const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);
-      const matchesValue = !filters.value.length || filters.value.includes(r.dnsRecord.value);
-      const matchesContainerId = !filters.containerId || r.metadata.containerId.includes(filters.containerId);
-      const matchesContainerName = !filters.containerName || r.metadata.containerName.includes(filters.containerName);
-      const matchesHostname = !filters.hostname.length || filters.hostname.includes(r.metadata.hostname);
-      const matchesForce = !filters.force.length || filters.force.includes(r.metadata.force);
-
-      return (
-        matchesSearch &&
-        matchesName &&
-        matchesType &&
-        matchesValue &&
-        matchesContainerId &&
-        matchesContainerName &&
-        matchesHostname &&
-        matchesForce
-      );
-    });
-  }, [records, search, filters]);
-
-  const sortedRecords = useMemo(() => {
-    return [...filteredRecords].sort((a, b) => {
-      for (const criterion of sort) {
-        const aVal = String(getValueByPath(a, criterion.key) ?? '').toLowerCase();
-        const bVal = String(getValueByPath(b, criterion.key) ?? '').toLowerCase();
-        const cmp = aVal.localeCompare(bVal);
-        if (cmp !== 0) {
-          return criterion.ascending ? cmp : -cmp;
-        }
-      }
-      return a.dnsRecord.name.localeCompare(b.dnsRecord.name);
-    });
-  }, [filteredRecords, sort]);
-
+  // Memoize aggregated data
+  const enrichedRecords = useMemo(() => enrichSearchable(records), [records]);
+  const filteredRecords = useMemo(() => filterRecords(enrichedRecords, filters, search), [enrichedRecords, filters, search]);
+  const sortedRecords = useMemo(() => sortRecords(filteredRecords, sort), [filteredRecords, sort]);
   const {recordTypes, recordValues, hostnames, forceValues} = useMemo(() => deriveFilterOptions(records), [records]);
 
+  // Set callbacks
   const toggleExpand = useCallback((key: string) => {
     setExpandedKeys(prev => {
       const updated = new Set(prev);
@@ -101,11 +64,12 @@ export default function RecordList() {
     setSort(next);
   }, []);
 
+  // Render
   return (
     <div className={styles.recordList}>
       <div className={styles.toolbar}>
         <SearchBar value={search} onChange={handleSearchChange} />
-        <SortControl sort={sort} onChange={handleSortChange} />
+        <SortChips sort={sort} onChange={handleSortChange} availableFields={SORT_KEYS} />
         <button
           onClick={() => setShowFilters((s) => !s)}
           className={styles.toggleFilters}
@@ -125,7 +89,7 @@ export default function RecordList() {
           availableForce={forceValues}
         />
       )}
-      <RecordGrid records={sortedRecords} toggleExpand={toggleExpand} />
+      <RecordGrid records={sortedRecords} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
     </div>
   );
 }
