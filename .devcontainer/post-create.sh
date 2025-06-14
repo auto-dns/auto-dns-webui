@@ -12,3 +12,5 @@ done
 
 echo "Seeding etcd with test DNS records..."
 ./scripts/seed-etcd.sh
+
+touch .devcontainer/.env
