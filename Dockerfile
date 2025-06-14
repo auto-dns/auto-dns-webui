@@ -17,6 +17,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o auto-dns-webui ./cmd/a
 
 # ===== Stage 3: Dev Container =====
 FROM mcr.microsoft.com/devcontainers/go:1.24 AS dev
+ENV ETCDCTL_ENDPOINTS="http://etcd:2379"
+ENV ETCDCTL_API=3
 RUN apt-get update && apt-get install -y \
     curl git sudo vim procps \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
