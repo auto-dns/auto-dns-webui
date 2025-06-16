@@ -34,16 +34,15 @@ export default function FilterSortDrawer({
   facetCounts,
 }: Props) {
   return (
-    <div
-      className={classNames(styles.drawer,
-        // { [styles.show]: show },
-        // { [styles.hidden]: !show }
-      )}
-      id="filterDrawer"
-    >
+    <div className={styles.drawer} id="filterDrawer">
       <div className={styles.header}>
-        <h2>Sorting & Filtering</h2>
-        <button onClick={onClose}>×</button>
+        <button
+          className={styles.hamburger}
+          onClick={onClose}
+          aria-label='Toggle filters'
+        >
+          ☰
+        </button>
       </div>
       <div className={styles.content}>
         <div className={styles.section}>

@@ -11,15 +11,9 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
   padding: 1rem;
   border-bottom: 1px solid var(--border-color);
-
-  h2 {
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
 
   button {
     font-size: 1.25rem;
