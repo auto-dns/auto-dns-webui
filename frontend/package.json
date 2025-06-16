@@ -18,7 +18,11 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "classnames": "^2.5.1",
+    "lucide-react": "^0.515.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   }
