@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { SortState, SortCriterion, Filters, FacetCounts } from '../../types';
-import SortChips from '../SortChips/SortChips';
+import SortEditor from '../SortEditor/SortEditor';
 import FilterPanel from '../FilterPanel/FilterPanel';
 import styles from './FilterSortDrawer.module.scss';
 
@@ -48,7 +48,7 @@ export default function FilterSortDrawer({
       <div className={styles.content}>
         <div className={styles.section}>
           <h3>Sort</h3>
-          <SortChips
+          <SortEditor
             sort={sort}
             onChange={onSortChange}
             availableFields={availableSortFields}

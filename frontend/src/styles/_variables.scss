@@ -13,6 +13,7 @@
   --accent-text: #ffffff;
   --count-text: #555555;
   --count-bg-selected: #dddddd;
+  --overlay-bg: rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,5 +32,6 @@
     --accent-text: #111111;
     --count-text: #cccccc;
     --count-bg-selected: #555555;
+    --overlay-bg: rgba(0, 0, 0, 0.6);
   }
 }
