@@ -3,14 +3,13 @@
 .grid {
   display: grid;
   gap: 1rem;
-  padding: 0;
+  padding: 0 1rem;
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   align-items: start;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    padding: 0 1rem;
   }
 }
