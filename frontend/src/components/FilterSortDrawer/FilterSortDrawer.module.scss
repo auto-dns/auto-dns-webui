@@ -1,25 +1,11 @@
 .drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
   height: 100%;
   width: 300px;
   background-color: var(--card-bg);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
-  z-index: 1000; // Make sure it's above the grid
-
-  &.show {
-    transform: translateX(0);
-  }
-
+  
   @media (min-width: 768px) {
-    position: fixed;
-    transform: translateX(-100%); // Start hidden
-    &.show {
-      transform: translateX(0);
-    }
+  
   }
 }
 

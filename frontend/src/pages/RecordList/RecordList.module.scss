@@ -1,77 +1,101 @@
 .recordList {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
 
-  .stickyHeader {
-    position: sticky;
+.mainContent {
+  flex-grow: 1;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.mainContent.shifted {
+  margin-left: 300px;
+}
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: var(--card-bg);
+  border-right: 1px solid var(--card-border);
+  height: 100%;
+  position: absolute; // important to remove it from layout when hidden
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  will-change: transform, opacity;
+}
+
+.sidebar.show {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 1rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hamburger {
+  font-size: 1.25rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.searchWrapper {
+  flex-grow: 1;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .recordList {
+    flex-direction: column;
+  }
+
+  .mainContent.shifted {
+    margin-left: 0;
+  }
+
+  .sidebar {
+    position: absolute;
+    height: 100%;
     top: 0;
-    z-index: 1000;
+    left: 0;
+    transform: translateX(-100%);
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--card-border);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    padding: 0.75rem 1rem;
-
-    .toolbar {
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 1rem;
-      gap: 1rem;
-
-      .hamburger {
-        font-size: 1.25rem;
-        background: none;
-        border: none;
-        color: var(--text-color);
-        cursor: pointer;
-        flex: 0 0 auto;
-      }
-
-      .searchWrapper {
-        margin: 0 auto;
-        width: 100%;
-        max-width: 500px;
-        
-        input {
-          width: 100%;
-          box-sizing: border-box;
-        }
-      }
-
-      @media (max-width: 768px) {
-        flex-direction: row;
-        .searchWrapper {
-          margin-left: 0;
-          margin-right: 0;
-        }
-      }
-    }
   }
 
-  .pageTitle {
-    margin: 1.25rem 0 0.75rem;
-    font-size: 1.4rem;
-    font-weight: 600;
-    text-align: center;
-
-    @media (max-width: 768px) {
-      font-size: 1.2rem;
-      margin-top: 1rem;
-    }
-  }
-
-  .mainContent {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 1rem;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      padding: 0.5rem;
-    }
+  .sidebar.show {
+    transform: translateX(0);
   }
 }
