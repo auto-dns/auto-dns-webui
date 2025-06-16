@@ -9,6 +9,8 @@ import { enrichSearchable } from '../../utils/record';
 import { filterRecords, getFacetCounts } from '../../utils/filters';
 import styles from './RecordList.module.scss';
 import classNames from 'classnames';
+import { PanelLeft } from 'lucide-react';
+
 
 export default function RecordList() {
   // Declare state
@@ -101,7 +103,7 @@ export default function RecordList() {
                 onClick={() => setShowSidebar(s => !s)}
                 aria-label='Toggle filters'
               >
-                ☰
+                <PanelLeft size={20} />
               </button>
             )}
             <div className={styles.searchWrapper}>

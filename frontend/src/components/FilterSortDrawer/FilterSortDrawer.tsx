@@ -1,8 +1,8 @@
-import classNames from 'classnames';
 import { SortState, SortCriterion, Filters, FacetCounts } from '../../types';
 import SortEditor from '../SortEditor/SortEditor';
 import FilterPanel from '../FilterPanel/FilterPanel';
 import styles from './FilterSortDrawer.module.scss';
+import { PanelLeft } from 'lucide-react';
 
 interface Props {
   show: boolean;
@@ -41,7 +41,7 @@ export default function FilterSortDrawer({
           onClick={onClose}
           aria-label='Toggle filters'
         >
-          ☰
+          <PanelLeft size={20} />
         </button>
       </div>
       <div className={styles.content}>
