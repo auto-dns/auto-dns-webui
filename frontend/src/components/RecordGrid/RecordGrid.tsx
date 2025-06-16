@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import RecordCard from '../RecordCard/RecordCard';
 import { RecordEntry } from '../../types';
 import { getRecordKey } from '../../utils/record';
