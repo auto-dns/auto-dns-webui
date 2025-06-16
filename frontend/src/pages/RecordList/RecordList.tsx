@@ -8,11 +8,12 @@ import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords, getFacetCounts } from '../../utils/filters';
 import styles from './RecordList.module.scss';
+import classNames from 'classnames';
 
 export default function RecordList() {
   // Declare state
   const [records, setRecords] = useState<RecordEntry[]>([]);
-  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState<Filters>({
@@ -75,25 +76,10 @@ export default function RecordList() {
   // Render
   return (
     <div className={styles.recordList}>
-      <header className={styles.stickyHeader}>
-        <div className={styles.toolbar}>
-          <button
-            className={styles.hamburger}
-            onClick={() => setShowFilters(s => !s)}
-            aria-label='Toggle filters'
-          >
-            ☰
-          </button>
-          <div className={styles.searchWrapper}>
-            <SearchBar value={search} onChange={handleSearchChange} />
-          </div>
-        </div>
-      </header>
-      <h2 className={styles.pageTitle}>DNS Records</h2>
-      <div className={styles.mainContent}>
+      <div className={classNames(styles.sidebar, { [styles.show]: showSidebar })}>
         <FilterSortDrawer
-          show={showFilters}
-          onClose={() => setShowFilters(false)}
+          show={showSidebar}
+          onClose={() => setShowSidebar(false)}
           filters={filters}
           sort={sort}
           onSortChange={handleSortChange}
@@ -105,7 +91,30 @@ export default function RecordList() {
           availableForce={forceValues}
           facetCounts={facetCounts}
         />
-        <RecordGrid records={sortedRecords} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
+      </div>
+      <div className={classNames(styles.mainContent, { [styles.shifted]: showSidebar })}>
+        <header className={styles.stickyHeader}>
+          <div className={styles.toolbar}>
+            {!showSidebar && (
+              <button
+                className={styles.hamburger}
+                onClick={() => setShowSidebar(s => !s)}
+                aria-label='Toggle filters'
+              >
+                ☰
+              </button>
+            )}
+            <div className={styles.searchWrapper}>
+              <SearchBar value={search} onChange={handleSearchChange} />
+            </div>
+          </div>
+        </header>
+        <h2 className={styles.pageTitle}>DNS Records</h2>
+        <RecordGrid
+          records={sortedRecords}
+          expandedKeys={expandedKeys}
+          toggleExpand={toggleExpand}
+        />
       </div>
     </div>
   );

@@ -36,8 +36,8 @@ export default function FilterSortDrawer({
   return (
     <div
       className={classNames(styles.drawer,
-        { [styles.show]: show },
-        { [styles.hidden]: !show }
+        // { [styles.show]: show },
+        // { [styles.hidden]: !show }
       )}
       id="filterDrawer"
     >
