@@ -10,6 +10,14 @@ interface RecordGridProps {
 }
 
 export default function RecordGrid({ records, expandedKeys, toggleExpand }: RecordGridProps) {
+  if (records.length === 0) {
+    return (
+      <div className={styles.emptyState}>
+        <p>No records match your filters or search.</p>
+      </div>
+    );
+  }
+  
   return (
     <div className={styles.grid}>
       {records.map((record) => {
