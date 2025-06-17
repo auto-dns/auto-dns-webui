@@ -30,8 +30,8 @@ export default function SortItem({ criterion, index, onToggleDirection, onRemove
         <button
             className={styles.directionToggle}
             onClick={(e) => {
-            e.stopPropagation();
-            onToggleDirection(index);
+              e.stopPropagation();
+              onToggleDirection(index);
             }}
         >
             {criterion.ascending ? '↑' : '↓'}

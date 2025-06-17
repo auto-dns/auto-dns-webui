@@ -1,3 +1,6 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
 .recordList {
   position: relative;
   display: flex;
@@ -7,7 +10,7 @@
   overflow: hidden;
   min-height: 100vh;
 
-  @media (max-width: 768px) {
+  @include respond-max($breakpoint-md) {
     flex-direction: column;
   }
 
@@ -32,7 +35,7 @@
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
     will-change: transform, opacity;
 
-    @media (max-width: 768px) {
+    @include respond-max($breakpoint-md) {
       position: absolute;
       height: 100vh;
       min-height: 100%;
@@ -51,7 +54,7 @@
       opacity: 1;
       pointer-events: auto;
 
-      @media (max-width: 768px) {
+      @include respond-max($breakpoint-md) {
         transform: translateX(0);
       }
     }
@@ -65,7 +68,7 @@
     &.shifted {
       margin-left: 300px;
 
-      @media (max-width: 768px) {
+      @include respond-max($breakpoint-md) {
         margin-left: 0;
       }
     }
@@ -110,7 +113,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@include respond-max($breakpoint-md) {
   .sidebar {
     position: absolute;
     height: 100vh;
