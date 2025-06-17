@@ -40,10 +40,11 @@ export default function FilterPanel({
   return (
     <div>
       <div className={styles.group}>
-        <label>
+        <label htmlFor='record-name-input'>
           Record Name:
           <input
             type="text"
+            id="record-name-input"
             value={filters.name}
             onChange={(e) => onChange({ ...filters, name: e.target.value })}
           />
@@ -71,10 +72,11 @@ export default function FilterPanel({
       </div>
 
       <div className={styles.group}>
-        <label>
+        <label htmlFor='container-name-input'>
           Container Name:
           <input
             type="text"
+            id="container-name-input"
             value={filters.containerName}
             onChange={(e) =>
               onChange({ ...filters, containerName: e.target.value })
@@ -84,10 +86,11 @@ export default function FilterPanel({
       </div>
 
       <div className={styles.group}>
-        <label>
+        <label htmlFor='container-id-input'>
           Container Id:
           <input
             type="text"
+            id="container-id-input"
             value={filters.containerId}
             onChange={(e) =>
               onChange({ ...filters, containerId: e.target.value })

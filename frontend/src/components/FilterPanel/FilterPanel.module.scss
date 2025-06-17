@@ -8,6 +8,7 @@
   label {
     display: block;
     margin-bottom: 0.4rem;
+    margin-right: 1rem;
     font-weight: 600;
     font-size: 0.9rem;
     color: var(--text-color);
@@ -23,6 +24,10 @@
     border-radius: 4px;
     background-color: var(--bg-color);
     color: var(--text-color);
+
+    @media (max-width: 768px) {
+      max-width: 200px;
+    }
   }
 
   fieldset {
