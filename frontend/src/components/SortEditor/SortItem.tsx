@@ -26,7 +26,7 @@ export default function SortItem({ criterion, index, onToggleDirection, onRemove
         <div className={styles.handle} {...attributes} {...listeners}>
             <GripVertical size={16} />
         </div>
-        <div className={styles.label}>{SORT_LABELS[criterion.key]}</div>
+        <div className={styles.label} {...attributes} {...listeners}>{SORT_LABELS[criterion.key]}</div>
         <button
             className={styles.directionToggle}
             onClick={(e) => {

@@ -1,4 +1,4 @@
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, closestCenter, TouchSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useState, useEffect } from 'react';
 import styles from './SortEditor.module.scss';
@@ -29,7 +29,15 @@ export default function SortEditor({ sort, onChange, availableFields }: SortEdit
     }
   }, [availableFields, sort]);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 5,
+      }
+    }),
+);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;

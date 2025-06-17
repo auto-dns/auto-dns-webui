@@ -6,7 +6,9 @@
   margin-bottom: 1rem;
 
   label {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
     margin-bottom: 0.4rem;
     margin-right: 1rem;
     font-weight: 600;
