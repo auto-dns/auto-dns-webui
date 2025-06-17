@@ -7,6 +7,10 @@
   overflow: hidden;
   min-height: 100vh;
 
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
   .sidebar {
     display: flex;
     flex-direction: column;
@@ -28,10 +32,28 @@
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
     will-change: transform, opacity;
 
+    @media (max-width: 768px) {
+      position: absolute;
+      height: 100vh;
+      min-height: 100%;
+      max-height: 100%;
+      width: 100vw;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      background-color: var(--card-bg);
+    }
+
     &.show {
       transform: translateX(0);
       opacity: 1;
       pointer-events: auto;
+
+      @media (max-width: 768px) {
+        transform: translateX(0);
+      }
     }
   }
 
@@ -42,6 +64,10 @@
     
     &.shifted {
       margin-left: 300px;
+
+      @media (max-width: 768px) {
+        margin-left: 0;
+      }
     }
 
     .stickyHeader {
@@ -85,14 +111,6 @@
 }
 
 @media (max-width: 768px) {
-  .recordList {
-    flex-direction: column;
-  }
-
-  .mainContent.shifted {
-    margin-left: 0;
-  }
-
   .sidebar {
     position: absolute;
     height: 100vh;

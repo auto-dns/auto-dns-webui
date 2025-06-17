@@ -4,8 +4,8 @@
   background-color: var(--card-bg);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
   
-  @media (min-width: 768px) {
-  
+  @media (max-width: 768px) {
+    width: 100%;
   }
 }
 
@@ -30,7 +30,9 @@
   flex-direction: column;
   gap: 1.5rem;
   overflow-y: auto;
-  max-height: calc(100% - 60px);
+  @media (max-width: 768px) {
+    margin: 0 auto;
+  }
 }
 
 .section {
