@@ -1,5 +1,12 @@
 @use '../../styles/variables' as *;
 
+.emptyState {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
 .grid {
   display: grid;
   gap: 1rem;
