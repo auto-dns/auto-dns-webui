@@ -1,3 +1,6 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
 .sortItem {
   display: flex;
   align-items: center;
@@ -12,7 +15,7 @@
   touch-action: none;
   user-select: none;
 
-  @media (max-width: 768px) {
+  @include respond-max($breakpoint-md) {
       max-width: 200px;
   }
 

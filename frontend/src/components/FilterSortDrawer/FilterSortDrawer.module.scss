@@ -1,10 +1,13 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
 .drawer {
   height: 100%;
   width: 300px;
   background-color: var(--card-bg);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
   
-  @media (max-width: 768px) {
+  @include respond-max($breakpoint-md) {
     width: 100%;
   }
 }
@@ -30,7 +33,7 @@
   flex-direction: column;
   gap: 1.5rem;
   overflow-y: auto;
-  @media (max-width: 768px) {
+  @include respond-max($breakpoint-md) {
     margin: 0 auto;
   }
 }
