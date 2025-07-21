@@ -6,7 +6,7 @@ npm install --prefix frontend
 
 # Wait for etcd to be ready and seed it with DNS records
 echo "Waiting for etcd to become healthy..."
-until etcdctl --endpoints=http://etcd:2379 endpoint health; do
+until etcdctl endpoint health; do
   sleep 1
 done
 
