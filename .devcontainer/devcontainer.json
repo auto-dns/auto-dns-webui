@@ -32,8 +32,7 @@
         "golang.go",
         "mhutchie.git-graph",
         "ms-azuretools.vscode-docker",
-        "oderwat.indent-rainbow",
-        "sourcegraph.cody-ai"
+        "oderwat.indent-rainbow"
       ]
     }
   },
