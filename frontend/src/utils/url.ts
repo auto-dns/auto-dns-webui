@@ -1,4 +1,4 @@
-import { Filters, SortState } from '../types';
+import { Filters, SortState, SortKey } from '../types';
 
 // URL parameter keys
 const PARAM_KEYS = {
@@ -14,6 +14,41 @@ const PARAM_KEYS = {
   // Sort
   sort: 'sort',
 } as const;
+
+// Friendly names for sort keys (for URL parameters)
+const SORT_FRIENDLY_NAMES: Record<SortKey, string> = {
+  'dnsRecord.name': 'name',
+  'dnsRecord.type': 'type',
+  'dnsRecord.value': 'value',
+  'metadata.containerName': 'container',
+  'metadata.created': 'created',
+  'metadata.hostname': 'hostname',
+};
+
+// Reverse mapping from friendly names to full keys
+const FRIENDLY_TO_SORT_KEY: Record<string, SortKey> = Object.fromEntries(
+  Object.entries(SORT_FRIENDLY_NAMES).map(([key, friendly]) => [friendly, key as SortKey])
+);
+
+// Default sort configuration
+const DEFAULT_SORT: SortState = [{ key: 'dnsRecord.name', ascending: true }];
+
+// Check if the current sort state should be omitted from URL
+function shouldOmitSortFromUrl(sort: SortState): boolean {
+  // If there are multiple sorts, always include in URL
+  if (sort.length > 1) {
+    return false;
+  }
+  
+  // If there's exactly one sort and it matches the default, omit it
+  if (sort.length === 1) {
+    const [firstSort] = sort;
+    return firstSort.key === DEFAULT_SORT[0].key && firstSort.ascending === DEFAULT_SORT[0].ascending;
+  }
+  
+  // If no sorts, omit from URL
+  return true;
+}
 
 // Serialize state to URL parameters
 export function serializeToUrl(search: string, filters: Filters, sort: SortState): string {
@@ -47,9 +82,12 @@ export function serializeToUrl(search: string, filters: Filters, sort: SortState
     params.set(PARAM_KEYS.force, filters.force.map(f => f.toString()).join(','));
   }
   
-  // Add sort
-  if (sort.length > 0) {
-    const sortString = sort.map(s => `${s.key}:${s.ascending ? 'asc' : 'desc'}`).join(',');
+  // Add sort (only if it should not be omitted)
+  if (!shouldOmitSortFromUrl(sort)) {
+    const sortString = sort.map(s => {
+      const friendlyName = SORT_FRIENDLY_NAMES[s.key];
+      return `${friendlyName}:${s.ascending ? 'asc' : 'desc'}`;
+    }).join(',');
     params.set(PARAM_KEYS.sort, sortString);
   }
   
@@ -78,28 +116,32 @@ export function parseFromUrl(searchParams: URLSearchParams): {
   
   // Parse sort
   const sortParam = searchParams.get(PARAM_KEYS.sort);
-  let sort: SortState = [{ key: 'dnsRecord.name', ascending: true }]; // default
+  let sort: SortState = [...DEFAULT_SORT]; // Use default
   
   if (sortParam) {
     try {
-      sort = sortParam.split(',').map(item => {
-        const [key, direction] = item.split(':');
+      const parsedSort = sortParam.split(',').map(item => {
+        const [friendlyName, direction] = item.split(':');
+        const fullKey = FRIENDLY_TO_SORT_KEY[friendlyName];
+        if (!fullKey) {
+          throw new Error(`Invalid sort key: ${friendlyName}`);
+        }
         return {
-          key: key as any, // Type assertion - we'll validate this is a valid SortKey
+          key: fullKey,
           ascending: direction === 'asc'
         };
       }).filter(item => 
         // Validate that key is a valid SortKey
-        ['dnsRecord.name', 'dnsRecord.type', 'dnsRecord.value', 'metadata.containerName', 'metadata.created', 'metadata.hostname'].includes(item.key)
+        Object.keys(SORT_FRIENDLY_NAMES).includes(item.key)
       );
       
-      // If no valid sort criteria, use default
-      if (sort.length === 0) {
-        sort = [{ key: 'dnsRecord.name', ascending: true }];
+      // If we got valid sort criteria, use them
+      if (parsedSort.length > 0) {
+        sort = parsedSort;
       }
     } catch {
       // If parsing fails, use default
-      sort = [{ key: 'dnsRecord.name', ascending: true }];
+      sort = [...DEFAULT_SORT];
     }
   }
   
