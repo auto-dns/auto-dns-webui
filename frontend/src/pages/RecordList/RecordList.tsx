@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Filters, RecordEntry, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
@@ -7,30 +7,45 @@ import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords, getFacetCounts } from '../../utils/filters';
+import { parseFromUrl, updateUrl } from '../../utils/url';
 import styles from './RecordList.module.scss';
 import classNames from 'classnames';
 import { PanelLeft } from 'lucide-react';
 
 
 export default function RecordList() {
+  // Initialize state from URL on mount
+  const initialState = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      return parseFromUrl(searchParams);
+    }
+    return {
+      search: '',
+      filters: {
+        name: '',
+        type: [],
+        value: [],
+        containerId: '',
+        containerName: '',
+        hostname: [],
+        force: [],
+      },
+      sort: [{ key: 'dnsRecord.name' as const, ascending: true }],
+    };
+  }, []);
+
   // Declare state
   const [records, setRecords] = useState<RecordEntry[]>([]);
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<Filters>({
-    name: '',
-    type: [],
-    value: [],
-    containerId: '',
-    containerName: '',
-    hostname: [],
-    force: [],
-  });
-  const [sort, setSort] = useState<SortState>([
-    { key: 'dnsRecord.name', ascending: true },
-  ]);
+  const [search, setSearch] = useState(initialState.search);
+  const [filters, setFilters] = useState<Filters>(initialState.filters);
+  const [sort, setSort] = useState<SortState>(initialState.sort);
   const [scrolled, setScrolled] = useState(false);
+  
+  // Track if we should update URL (to avoid infinite loops during initialization)
+  const isInitializing = useRef(true);
 
   // Use effects
   useEffect(() => {
@@ -39,12 +54,39 @@ export default function RecordList() {
       .then((data) => setRecords(data))
       .catch((err) => console.error('Failed to fetch records:', err));
   }, []);
+
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 0);
     };
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Mark initialization as complete after first render
+  useEffect(() => {
+    isInitializing.current = false;
+  }, []);
+
+  // Sync URL whenever search, filters, or sort change (but not during initialization)
+  useEffect(() => {
+    if (!isInitializing.current) {
+      updateUrl(search, filters, sort);
+    }
+  }, [search, filters, sort]);
+
+  // Handle browser navigation (back/forward buttons)
+  useEffect(() => {
+    const handlePopState = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlState = parseFromUrl(searchParams);
+      setSearch(urlState.search);
+      setFilters(urlState.filters);
+      setSort(urlState.sort);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Memoize aggregated data
