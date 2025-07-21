@@ -8,6 +8,7 @@ import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords, getFacetCounts } from '../../utils/filters';
 import { parseFromUrl, updateUrl } from '../../utils/url';
+import { useSidebarState } from '../../hooks/useSidebarState';
 import styles from './RecordList.module.scss';
 import classNames from 'classnames';
 import { PanelLeft } from 'lucide-react';
@@ -37,7 +38,7 @@ export default function RecordList() {
 
   // Declare state
   const [records, setRecords] = useState<RecordEntry[]>([]);
-  const [showSidebar, setShowSidebar] = useState<boolean>(false);
+  const [showSidebar, setShowSidebar] = useSidebarState();
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState(initialState.search);
   const [filters, setFilters] = useState<Filters>(initialState.filters);
