@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
-      contents: read
+      contents: write
       packages: write
       attestations: write
       id-token: write
@@ -77,3 +77,31 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push-full.outputs.digest }}
           push-to-registry: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          prerelease="${{ steps.version.outputs.prerelease }}"
+
+          # Extract the matching section from CHANGELOG.md
+          body=$(awk "/^## \[$version\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md | sed '/^$/N;/^\n$/d')
+
+          # Append Docker image reference
+          body="${body}
+
+## Docker image
+
+\`\`\`
+docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${version}
+\`\`\`
+"
+
+          prerelease_flag=""
+          [ -n "$prerelease" ] && prerelease_flag="--prerelease"
+
+          gh release create "v${version}" \
+            --title "v${version}" \
+            --notes "$body" \
+            $prerelease_flag
