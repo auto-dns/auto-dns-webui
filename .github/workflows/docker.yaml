@@ -85,23 +85,17 @@ jobs:
           version="${{ steps.version.outputs.version }}"
           prerelease="${{ steps.version.outputs.prerelease }}"
 
-          # Extract the matching section from CHANGELOG.md
-          body=$(awk "/^## \[$version\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md | sed '/^$/N;/^\n$/d')
-
-          # Append Docker image reference
-          body="${body}
-
-## Docker image
-
-\`\`\`
-docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${version}
-\`\`\`
-"
+          notes_file=$(mktemp)
+          awk "/^## \[$version\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md \
+            | sed '/^$/N;/^\n$/d' > "$notes_file"
+          printf '\n## Docker image\n\n```\ndocker pull %s/%s:%s\n```\n' \
+            "${{ env.REGISTRY }}" "${{ env.IMAGE_NAME }}" "${version}" >> "$notes_file"
 
           prerelease_flag=""
           [ -n "$prerelease" ] && prerelease_flag="--prerelease"
 
           gh release create "v${version}" \
             --title "v${version}" \
-            --notes "$body" \
+            --notes-file "$notes_file" \
             $prerelease_flag
+          rm -f "$notes_file"
