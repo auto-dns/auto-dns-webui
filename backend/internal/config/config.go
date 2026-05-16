@@ -13,6 +13,7 @@ type Config struct {
 	App    AppConfig     `mapstructure:"app"`
 	Etcd   EtcdConfig    `mapstructure:"etcd"`
 	Log    LoggingConfig `mapstructure:"log"`
+	MCP    MCPConfig     `mapstructure:"mcp"`
 	Server ServerConfig  `mapstructure:"server"`
 }
 
@@ -42,6 +43,11 @@ type ProxyConfig struct {
 	Enable   bool   `mapstructure:"enable"`
 	Hostname string `mapstructure:"hostname"`
 	Port     int    `mapstructure:"port"`
+}
+
+type MCPConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+	Port    int  `mapstructure:"port"`
 }
 
 func Load() (*Config, error) {
@@ -93,6 +99,8 @@ func initConfig() error {
 	viper.SetDefault("etcd.lock_timeout", 2.0)
 	viper.SetDefault("etcd.lock_retry_interval", 0.1)
 	viper.SetDefault("log.level", "INFO")
+	viper.SetDefault("mcp.enabled", false)
+	viper.SetDefault("mcp.port", 0)
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.proxy.enable", false)
 	viper.SetDefault("server.proxy.hostname", "localhost")
@@ -145,6 +153,9 @@ func (c *Config) validate() error {
 	}
 	if c.Server.Port <= 0 || c.Server.Port > 65535 {
 		return fmt.Errorf("server.port must be a valid TCP port")
+	}
+	if c.MCP.Enabled && (c.MCP.Port <= 0 || c.MCP.Port > 65535) {
+		return fmt.Errorf("mcp.port must be a valid TCP port when mcp.enabled is true")
 	}
 	return nil
 }
