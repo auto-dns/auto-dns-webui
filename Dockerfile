@@ -5,7 +5,7 @@ COPY frontend/ .
 RUN npm install && npm run build
 
 # ===== Stage 2: Build Go Backend =====
-FROM golang:1.24 AS backend-builder
+FROM golang:1.26.3 AS backend-builder
 WORKDIR /backend
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
@@ -16,7 +16,7 @@ COPY --from=frontend-builder /frontend/dist ./internal/frontend/dist
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o auto-dns-webui ./cmd/auto-dns-webui
 
 # ===== Stage 3: Dev Container =====
-FROM mcr.microsoft.com/devcontainers/go:1.24 AS dev
+FROM mcr.microsoft.com/devcontainers/go:1.26 AS dev
 ENV ETCDCTL_ENDPOINTS="http://etcd:2379"
 ENV ETCDCTL_API=3
 RUN apt-get update && apt-get install -y \
