@@ -64,7 +64,7 @@ func registerTools(s *server.MCPServer, d Deps) {
 	), makeListDNSRecords(d))
 
 	s.AddTool(mcp.NewTool("get_dns_record",
-		mcp.WithDescription("Look up a DNS record by its exact fully-qualified domain name (FQDN)."),
+		mcp.WithDescription("Look up all DNS records for an exact fully-qualified domain name (FQDN). Returns a list — the same FQDN may have multiple records (e.g. two A records from different containers)."),
 		mcp.WithString("name", mcp.Required(), mcp.Description("Exact FQDN to look up (e.g. myservice.carroll.live).")),
 	), makeGetDNSRecord(d))
 
@@ -108,9 +108,6 @@ func makeListDNSRecords(d Deps) server.ToolHandlerFunc {
 func makeGetDNSRecord(d Deps) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 		name := req.GetString("name", "")
-		if name == "" {
-			return mcp.NewToolResultError("name is required"), nil
-		}
 
 		records, err := d.Registry.List(ctx)
 		if err != nil {
@@ -118,12 +115,14 @@ func makeGetDNSRecord(d Deps) server.ToolHandlerFunc {
 		}
 
 		target := strings.TrimSuffix(strings.ToLower(name), ".")
+		out := listRecordsOut{Records: []dnsRecordOut{}}
 		for _, r := range records {
 			if strings.TrimSuffix(strings.ToLower(r.Dns.Name), ".") == target {
-				return jsonText(toRecordOut(r)), nil
+				out.Records = append(out.Records, toRecordOut(r))
 			}
 		}
-		return mcp.NewToolResultText(fmt.Sprintf(`{"found":false,"name":%q}`, name)), nil
+		out.Total = len(out.Records)
+		return jsonText(out), nil
 	}
 }
 
