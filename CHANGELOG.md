@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-25
+
 ### Added
 - `CONTRIBUTING.md` documenting the SDLC: dependency-aware SemVer, milestones-as-versions, the milestone/feature branching model, the issue/label lifecycle, and PR conventions.
 - `CLAUDE.md` and `AGENTS.md`: architecture/data-flow overview and the same SDLC for coding agents and contributors.
