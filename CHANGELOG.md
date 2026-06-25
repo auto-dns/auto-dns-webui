@@ -4,7 +4,54 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Versioning note.** The published tags jump from `0.1.8` to `0.4.1`; versions
+> `0.2.0`–`0.4.0` were never tagged or released. `0.4.1` was the first release cut
+> after `0.1.8` and shipped CI/release tooling only (see its entry below). The
+> **git tag is the authoritative version** for a release — the GHCR image and
+> GitHub Release are built from it. `frontend/package.json`'s `version` tracks the
+> in-development line and is not the release source of truth. The active
+> development line is `0.5.x`. As a **downstream consumer** of the
+> [`docker-coredns-sync`](https://github.com/auto-dns/docker-coredns-sync) etcd
+> record schema, releases note the minimum compatible producer version when the
+> consumed schema is involved (see `CONTRIBUTING.md`).
+
 ## [Unreleased]
+
+## [0.5.0] - 2026-06-25
+
+### Added
+- `CONTRIBUTING.md` documenting the SDLC: dependency-aware SemVer, milestones-as-versions, the milestone/feature branching model, the issue/label lifecycle, and PR conventions.
+- `CLAUDE.md` and `AGENTS.md`: architecture/data-flow overview and the same SDLC for coding agents and contributors.
+- Pull request template and issue templates (bug report, feature request) under `.github/`.
+- Makefile quality gates: `check`, `lint`, `vet`, `typecheck`, `format`, `test`, `test-race`, `test-coverage`, `test-coverage-html` (backend uses `go`/`golangci-lint`; frontend delegates to npm scripts).
+- Frontend npm scripts (`lint`, `lint:fix`, `typecheck`, `format`, `format:check`), an ESLint flat config (`eslint.config.js`) using `typescript-eslint` + react-hooks, and Prettier config (`.prettierrc.json` / `.prettierignore`).
+- CI workflow (`.github/workflows/ci.yaml`) running backend (build, vet, golangci-lint, race tests) and frontend (lint, typecheck, build) jobs on pull requests and pushes to `main`/`v*` branches.
+- Dependency and vulnerability automation: `.github/dependabot.yml` (gomod, npm, github-actions) and `.github/workflows/security.yaml` running `govulncheck` (backend) and `npm audit` (frontend) on a schedule and on dependency changes.
+- Backend unit tests for config validation, the etcd registry (`parseEtcdValue`, `List`, `Remove`) via a mocked etcd client, the `/api/records` handler, and the MCP tools (`list_dns_records`, `get_dns_record`, `get_records_by_host`).
+- Frontend unit tests (Vitest) for the `utils/` logic (`object`, `record`, `sort`, `filters`, `url`), wired into `make test-frontend`, plus a `TESTS.md` documenting automated and manual test cases.
+
+### Changed
+- `frontend/tsconfig.json`: `moduleResolution` set to `bundler` and `skipLibCheck` enabled so `tsc --noEmit` type-checks cleanly against Vite and third-party types.
+- `frontend/package.json` version bumped from the stale `0.1.0` to `0.5.0` to track the active development line.
+- CI: upgraded `golangci/golangci-lint-action` v6 → v8 (pinned golangci-lint `v2.12.2`) so the linter binary is built with a Go toolchain compatible with the module's Go version (v6 shipped a go1.24-built binary that refused to run against the go1.26 module).
+
+### Fixed
+- Handle the JSON encode error in the `/api/records` handler (log on failure) instead of ignoring it, and explicitly ignore the (non-failing) `viper.BindPFlag` return values in CLI flag binding — resolving the `errcheck` findings that `golangci-lint` now reports.
+
+### Security
+- Bumped the Go toolchain `1.26.3` → `1.26.4`, remediating two *called* standard-library vulnerabilities flagged by `govulncheck`: `GO-2026-5039` (net/textproto) and `GO-2026-5037` (crypto/x509), both fixed in go1.26.4.
+
+## [0.4.1] - 2026-05-17
+
+First release cut after `0.1.8` (see the versioning note above). Shipped
+CI/release tooling only — no application behavior changes.
+
+### Added
+- Automated GitHub Releases from CI: on tag push, release notes are extracted from the matching `## [VERSION]` CHANGELOG section and the Docker pull command is appended.
+
+### Fixed
+- Corrected YAML literal-block indentation in the release workflow's "Create GitHub release" step.
+- Used the full image reference (instead of a bare digest) as the `docker buildx imagetools create` source so the major/minor/latest tag push for stable releases succeeds.
 
 ## [0.1.8] - 2026-05-15
 

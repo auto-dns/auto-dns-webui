@@ -1,6 +1,6 @@
 module github.com/auto-dns/auto-dns-webui
 
-go 1.26.3
+go 1.26.4
 
 require go.etcd.io/etcd/client/v3 v3.6.1
 
