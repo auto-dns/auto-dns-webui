@@ -128,9 +128,8 @@ test: test-backend test-frontend
 test-backend:
 	cd $(BACKEND_DIR) && go test ./...
 
-# Placeholder until the frontend test runner lands (see issue #16).
 test-frontend:
-	@echo "No frontend tests yet (see issue #16)."
+	npm test --prefix $(FRONTEND_DIR)
 
 test-race:
 	cd $(BACKEND_DIR) && go test -race ./...

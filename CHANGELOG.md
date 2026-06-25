@@ -26,6 +26,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - CI workflow (`.github/workflows/ci.yaml`) running backend (build, vet, golangci-lint, race tests) and frontend (lint, typecheck, build) jobs on pull requests and pushes to `main`/`v*` branches.
 - Dependency and vulnerability automation: `.github/dependabot.yml` (gomod, npm, github-actions) and `.github/workflows/security.yaml` running `govulncheck` (backend) and `npm audit` (frontend) on a schedule and on dependency changes.
 - Backend unit tests for config validation, the etcd registry (`parseEtcdValue`, `List`, `Remove`) via a mocked etcd client, the `/api/records` handler, and the MCP tools (`list_dns_records`, `get_dns_record`, `get_records_by_host`).
+- Frontend unit tests (Vitest) for the `utils/` logic (`object`, `record`, `sort`, `filters`, `url`), wired into `make test-frontend`, plus a `TESTS.md` documenting automated and manual test cases.
 
 ### Changed
 - `frontend/tsconfig.json`: `moduleResolution` set to `bundler` and `skipLibCheck` enabled so `tsc --noEmit` type-checks cleanly against Vite and third-party types.
