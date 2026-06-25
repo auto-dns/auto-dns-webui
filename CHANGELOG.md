@@ -24,10 +24,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Makefile quality gates: `check`, `lint`, `vet`, `typecheck`, `format`, `test`, `test-race`, `test-coverage`, `test-coverage-html` (backend uses `go`/`golangci-lint`; frontend delegates to npm scripts).
 - Frontend npm scripts (`lint`, `lint:fix`, `typecheck`, `format`, `format:check`), an ESLint flat config (`eslint.config.js`) using `typescript-eslint` + react-hooks, and Prettier config (`.prettierrc.json` / `.prettierignore`).
 - CI workflow (`.github/workflows/ci.yaml`) running backend (build, vet, golangci-lint, race tests) and frontend (lint, typecheck, build) jobs on pull requests and pushes to `main`/`v*` branches.
+- Dependency and vulnerability automation: `.github/dependabot.yml` (gomod, npm, github-actions) and `.github/workflows/security.yaml` running `govulncheck` (backend) and `npm audit` (frontend) on a schedule and on dependency changes.
 
 ### Changed
 - `frontend/tsconfig.json`: `moduleResolution` set to `bundler` and `skipLibCheck` enabled so `tsc --noEmit` type-checks cleanly against Vite and third-party types.
 - `frontend/package.json` version bumped from the stale `0.1.0` to `0.5.0` to track the active development line.
+- CI: upgraded `golangci/golangci-lint-action` v6 → v8 (pinned golangci-lint `v2.12.2`) so the linter binary is built with a Go toolchain compatible with the module's Go version (v6 shipped a go1.24-built binary that refused to run against the go1.26 module).
+
+### Fixed
+- Handle the JSON encode error in the `/api/records` handler (log on failure) instead of ignoring it, and explicitly ignore the (non-failing) `viper.BindPFlag` return values in CLI flag binding — resolving the `errcheck` findings that `golangci-lint` now reports.
+
+### Security
+- Bumped the Go toolchain `1.26.3` → `1.26.4`, remediating two *called* standard-library vulnerabilities flagged by `govulncheck`: `GO-2026-5039` (net/textproto) and `GO-2026-5037` (crypto/x509), both fixed in go1.26.4.
 
 ## [0.4.1] - 2026-05-17
 

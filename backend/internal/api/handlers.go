@@ -29,5 +29,7 @@ func (h *Handler) Records(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(records)
+	if err := json.NewEncoder(w).Encode(records); err != nil {
+		h.Logger.Error().Err(err).Msg("Failed to encode records response")
+	}
 }
