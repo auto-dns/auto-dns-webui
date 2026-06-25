@@ -1,0 +1,72 @@
+name: Security
+
+# Vulnerability scanning for the Go backend (govulncheck) and the npm frontend
+# (npm audit). Runs on PRs that touch dependencies, on pushes to the default and
+# milestone branches, on a weekly schedule, and on demand.
+on:
+  pull_request:
+    paths:
+      - backend/go.mod
+      - backend/go.sum
+      - frontend/package.json
+      - frontend/package-lock.json
+      - .github/workflows/security.yaml
+  push:
+    branches:
+      - main
+      - 'v*'
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  govulncheck:
+    name: Backend (govulncheck)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck
+        working-directory: backend
+        run: govulncheck ./...
+
+  npm-audit:
+    name: Frontend (npm audit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Fail only on high/critical advisories with a fix available. Build-time
+      # dev-only advisories without a patch are documented in the PR that
+      # introduced the exception (see CONTRIBUTING.md / PR history).
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

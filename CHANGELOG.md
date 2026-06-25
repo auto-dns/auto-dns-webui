@@ -24,6 +24,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Makefile quality gates: `check`, `lint`, `vet`, `typecheck`, `format`, `test`, `test-race`, `test-coverage`, `test-coverage-html` (backend uses `go`/`golangci-lint`; frontend delegates to npm scripts).
 - Frontend npm scripts (`lint`, `lint:fix`, `typecheck`, `format`, `format:check`), an ESLint flat config (`eslint.config.js`) using `typescript-eslint` + react-hooks, and Prettier config (`.prettierrc.json` / `.prettierignore`).
 - CI workflow (`.github/workflows/ci.yaml`) running backend (build, vet, golangci-lint, race tests) and frontend (lint, typecheck, build) jobs on pull requests and pushes to `main`/`v*` branches.
+- Dependency and vulnerability automation: `.github/dependabot.yml` (gomod, npm, github-actions) and `.github/workflows/security.yaml` running `govulncheck` (backend) and `npm audit` (frontend) on a schedule and on dependency changes.
 
 ### Changed
 - `frontend/tsconfig.json`: `moduleResolution` set to `bundler` and `skipLibCheck` enabled so `tsc --noEmit` type-checks cleanly against Vite and third-party types.
