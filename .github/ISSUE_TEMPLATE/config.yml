@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: docker-coredns-sync (upstream producer)
+    url: https://github.com/auto-dns/docker-coredns-sync/issues
+    about: If the issue is about how DNS records are produced/written into etcd, file it upstream.
+  - name: Contributing guide
+    url: https://github.com/auto-dns/auto-dns-webui/blob/main/CONTRIBUTING.md
+    about: Versioning, milestone/feature branching, and PR conventions.
