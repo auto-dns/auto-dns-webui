@@ -6,7 +6,10 @@ OUTPUT_BIN=$(BACKEND_DIR)/auto-dns-webui
 
 # --- TASKS ---
 
-.PHONY: help dev build prod run-prod clean init
+.PHONY: help dev build prod run-prod clean init \
+	check lint lint-backend lint-frontend vet typecheck \
+	format format-backend format-frontend \
+	test test-backend test-frontend test-race test-coverage test-coverage-html
 
 help:
 	@echo "Common tasks:"
@@ -15,6 +18,16 @@ help:
 	@echo "  make prod        - Build frontend and backend (with embedded static files)"
 	@echo "  make run-prod    - Run the production binary locally"
 	@echo "  make clean       - Remove generated build artifacts"
+	@echo ""
+	@echo "Quality gates (run before every PR):"
+	@echo "  make check       - vet + lint + typecheck + test (backend and frontend)"
+	@echo "  make lint        - golangci-lint (backend) + eslint (frontend)"
+	@echo "  make vet         - go vet (backend)"
+	@echo "  make typecheck   - tsc --noEmit (frontend)"
+	@echo "  make format      - gofmt/goimports (backend) + prettier (frontend)"
+	@echo "  make test        - go test (backend) + frontend unit tests"
+	@echo "  make test-race   - go test -race (backend)"
+	@echo "  make test-coverage - go test with coverage summary (backend)"
 
 dev:
 	@echo "Running dev mode: Vite + Go (with reverse proxy)"
@@ -74,3 +87,56 @@ init:
 	@echo "# Logging Configuration" >> .devcontainer/.env
 	@echo "AUTO_DNS_WEBUI_LOG_LEVEL=INFO" >> .devcontainer/.env
 	@echo "Created .devcontainer/.env with default configuration"
+
+# --- QUALITY GATES ---
+
+# Aggregate pre-PR gate. Mirrors docker-coredns-sync's `check` (lint + test),
+# extended with go vet and the frontend TypeScript typecheck. Formatting is a
+# separate, non-gating target (`make format`).
+check: vet lint typecheck test
+	@echo "All checks passed."
+
+lint: lint-backend lint-frontend
+
+lint-backend:
+	cd $(BACKEND_DIR) && golangci-lint run ./...
+
+lint-frontend:
+	npm run lint --prefix $(FRONTEND_DIR)
+
+vet:
+	cd $(BACKEND_DIR) && go vet ./...
+
+typecheck:
+	npm run typecheck --prefix $(FRONTEND_DIR)
+
+format: format-backend format-frontend
+
+format-backend:
+	cd $(BACKEND_DIR) && gofmt -w .
+	@if command -v goimports >/dev/null 2>&1; then \
+		cd $(BACKEND_DIR) && goimports -w .; \
+	else \
+		echo "goimports not installed; skipping (install: go install golang.org/x/tools/cmd/goimports@latest)"; \
+	fi
+
+format-frontend:
+	npm run format --prefix $(FRONTEND_DIR)
+
+test: test-backend test-frontend
+
+test-backend:
+	cd $(BACKEND_DIR) && go test ./...
+
+# Placeholder until the frontend test runner lands (see issue #16).
+test-frontend:
+	@echo "No frontend tests yet (see issue #16)."
+
+test-race:
+	cd $(BACKEND_DIR) && go test -race ./...
+
+test-coverage:
+	cd $(BACKEND_DIR) && go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
+
+test-coverage-html:
+	cd $(BACKEND_DIR) && go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html

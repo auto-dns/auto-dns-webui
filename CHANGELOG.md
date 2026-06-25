@@ -10,6 +10,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `CONTRIBUTING.md` documenting the SDLC: dependency-aware SemVer, milestones-as-versions, the milestone/feature branching model, the issue/label lifecycle, and PR conventions.
 - `CLAUDE.md` and `AGENTS.md`: architecture/data-flow overview and the same SDLC for coding agents and contributors.
 - Pull request template and issue templates (bug report, feature request) under `.github/`.
+- Makefile quality gates: `check`, `lint`, `vet`, `typecheck`, `format`, `test`, `test-race`, `test-coverage`, `test-coverage-html` (backend uses `go`/`golangci-lint`; frontend delegates to npm scripts).
+- Frontend npm scripts (`lint`, `lint:fix`, `typecheck`, `format`, `format:check`), an ESLint flat config (`eslint.config.js`) using `typescript-eslint` + react-hooks, and Prettier config (`.prettierrc.json` / `.prettierignore`).
+
+### Changed
+- `frontend/tsconfig.json`: `moduleResolution` set to `bundler` and `skipLibCheck` enabled so `tsc --noEmit` type-checks cleanly against Vite and third-party types.
 
 ## [0.1.8] - 2026-05-15
 
