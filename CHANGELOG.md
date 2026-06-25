@@ -6,6 +6,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `CLAUDE.md` and `AGENTS.md`: architecture/data-flow overview and the SDLC (dependency-aware SemVer, milestones-as-versions, milestone/feature branching, PR conventions) for coding agents and contributors.
+
 ## [0.1.8] - 2026-05-15
 
 ### Changed
