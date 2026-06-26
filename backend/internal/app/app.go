@@ -8,7 +8,9 @@ import (
 
 	"github.com/auto-dns/auto-dns-webui/internal/api"
 	"github.com/auto-dns/auto-dns-webui/internal/config"
+	"github.com/auto-dns/auto-dns-webui/internal/health"
 	mcphandler "github.com/auto-dns/auto-dns-webui/internal/mcp"
+	"github.com/auto-dns/auto-dns-webui/internal/metrics"
 	"github.com/auto-dns/auto-dns-webui/internal/registry"
 	"github.com/auto-dns/auto-dns-webui/internal/server"
 	"github.com/rs/zerolog"
@@ -33,11 +35,11 @@ func NewRegistry(cfg *config.Config, logger zerolog.Logger) (registry.Registry, 
 	return reg, nil
 }
 
-func NewHandler(r registry.Registry, logger zerolog.Logger) api.HandlerInterface {
-	return api.NewHandler(r, logger)
+func NewHandler(r registry.Registry, m *metrics.Metrics, logger zerolog.Logger) api.HandlerInterface {
+	return api.NewHandler(r, m, logger)
 }
 
-func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, logger zerolog.Logger) (httpServer, error) {
+func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, healthHandler *health.Handler, m *metrics.Metrics, logger zerolog.Logger) (httpServer, error) {
 	mux := http.NewServeMux()
 
 	http := &http.Server{
@@ -45,7 +47,7 @@ func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, logger ze
 		Handler: mux,
 	}
 
-	return server.New(http, mux, handler, cfg, logger)
+	return server.New(http, mux, handler, healthHandler, m, cfg, logger)
 }
 
 // New creates a new App by wiring up all dependencies.
@@ -55,9 +57,11 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 		return nil, fmt.Errorf("failed to create etcd registry: %w", err)
 	}
 
-	handler := NewHandler(reg, logger)
+	m := metrics.New()
+	handler := NewHandler(reg, m, logger)
+	healthHandler := health.New(reg, logger)
 
-	srv, err := NewServer(&cfg.Server, handler, logger)
+	srv, err := NewServer(&cfg.Server, handler, healthHandler, m, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create server: %w", err)
 	}
@@ -66,11 +70,17 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 	if cfg.MCP.Enabled {
 		mcpHandler := mcphandler.NewHandler(mcphandler.Deps{
 			Registry: reg,
+			Metrics:  m,
 			Logger:   logger,
 		})
+		// Wrap the MCP handler so the (separate) MCP server is also probeable.
+		mcpMux := http.NewServeMux()
+		mcpMux.HandleFunc("/healthz", healthHandler.Healthz)
+		mcpMux.HandleFunc("/readyz", healthHandler.Readyz)
+		mcpMux.Handle("/", mcpHandler)
 		mcpHTTP = &http.Server{
 			Addr:              fmt.Sprintf(":%d", cfg.MCP.Port),
-			Handler:           mcpHandler,
+			Handler:           mcpMux,
 			ReadHeaderTimeout: 10 * time.Second,
 			WriteTimeout:      0,
 			IdleTimeout:       120 * time.Second,

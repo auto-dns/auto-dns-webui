@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/auto-dns/auto-dns-webui/internal/dns"
+	"github.com/auto-dns/auto-dns-webui/internal/metrics"
 )
 
 // mockRegistry implements registry.Registry for handler tests.
@@ -21,6 +22,7 @@ type mockRegistry struct {
 }
 
 func (m *mockRegistry) List(ctx context.Context) ([]*dns.Record, error) { return m.records, m.err }
+func (m *mockRegistry) Ping(ctx context.Context) error                  { return m.err }
 func (m *mockRegistry) Close() error                                    { return nil }
 
 func TestRecords_Success(t *testing.T) {
@@ -30,7 +32,7 @@ func TestRecords_Success(t *testing.T) {
 			Meta: dns.RecordMetadata{Hostname: "h1", Created: time.Now()},
 		},
 	}}
-	h := NewHandler(reg, zerolog.Nop())
+	h := NewHandler(reg, metrics.New(), zerolog.Nop())
 
 	req := httptest.NewRequest(http.MethodGet, "/api/records", nil)
 	rec := httptest.NewRecorder()
@@ -52,7 +54,7 @@ func TestRecords_Success(t *testing.T) {
 }
 
 func TestRecords_RegistryError(t *testing.T) {
-	h := NewHandler(&mockRegistry{err: errors.New("etcd down")}, zerolog.Nop())
+	h := NewHandler(&mockRegistry{err: errors.New("etcd down")}, metrics.New(), zerolog.Nop())
 
 	req := httptest.NewRequest(http.MethodGet, "/api/records", nil)
 	rec := httptest.NewRecorder()

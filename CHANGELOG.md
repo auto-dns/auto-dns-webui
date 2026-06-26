@@ -17,6 +17,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-26
+
+### Added
+- Health and readiness endpoints. `GET /healthz` reports process liveness
+  (always `200` while serving, never touches etcd) and `GET /readyz` reports
+  readiness — `200` when etcd is reachable, `503` otherwise (bounded by a short
+  ping timeout) — so the service can be probed by Docker/Kubernetes/uptime
+  checks. Both endpoints are also served on the MCP server's port when the MCP
+  server is enabled, making that second `http.Server` independently probeable
+  (#21).
+- Prometheus `GET /metrics` endpoint exposing the standard Go runtime/process
+  collectors plus application metrics: HTTP request count and latency by
+  route/method/status (`auto_dns_webui_http_requests_total`,
+  `auto_dns_webui_http_request_duration_seconds`), current record count
+  (`auto_dns_webui_dns_records`), etcd list errors
+  (`auto_dns_webui_etcd_list_errors_total`), and MCP tool-call counts by tool
+  (`auto_dns_webui_mcp_tool_calls_total`). README documents a scrape config and
+  the metric reference (#22).
+
+### Notes
+- Purely additive: no change to the existing public contract (`/api/records`,
+  `AUTO_DNS_WEBUI_*` config, MCP tool schemas) or to the consumed
+  `docker-coredns-sync` etcd record schema — the minimum compatible producer
+  version is unchanged.
+
 ## [0.6.0] - 2026-06-26
 
 ### Added
