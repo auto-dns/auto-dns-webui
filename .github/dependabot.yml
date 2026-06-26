@@ -16,9 +16,16 @@ updates:
     # go.mod/go.sum). Majors stay as individual PRs for review.
     groups:
       backend-deps:
+        applies-to: version-updates
         update-types:
           - minor
           - patch
+      # Bundle security fixes that surface together into one PR, rather than
+      # one PR per advisory (security updates ignore schedule and the PR limit).
+      backend-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Frontend npm packages
   - package-ecosystem: npm
@@ -36,9 +43,16 @@ updates:
     # package.json/package-lock.json). Majors stay as individual PRs for review.
     groups:
       frontend-deps:
+        applies-to: version-updates
         update-types:
           - minor
           - patch
+      # Bundle security fixes that surface together into one PR, rather than
+      # one PR per advisory (security updates ignore schedule and the PR limit).
+      frontend-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     ignore:
       # ESLint 10 is blocked upstream: eslint-plugin-react (latest 7.37.5)
       # only declares peer support up to eslint ^9.7, so `npm ci`/lint cannot
@@ -64,6 +78,13 @@ updates:
     # Collapse all action bumps into a single PR.
     groups:
       ci-deps:
+        applies-to: version-updates
         update-types:
           - minor
           - patch
+      # Bundle security fixes that surface together into one PR, rather than
+      # one PR per advisory (security updates ignore schedule and the PR limit).
+      ci-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
