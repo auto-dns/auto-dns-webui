@@ -37,6 +37,15 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # ESLint 10 is blocked upstream: eslint-plugin-react (latest 7.37.5)
+      # only declares peer support up to eslint ^9.7, so `npm ci`/lint cannot
+      # resolve with eslint 10. Hold the major bumps until the plugin ships
+      # eslint-10 support, then drop these ignores. Minor/patch still flow.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows
   - package-ecosystem: github-actions
