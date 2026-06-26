@@ -17,6 +17,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-26
+
+Maintenance release: dependency and CI updates plus Dependabot automation
+tuning. No change to the public contract (HTTP `/api/*`, `AUTO_DNS_WEBUI_*`
+config, MCP tool schemas) or to the consumed `docker-coredns-sync` etcd record
+schema — the minimum compatible producer version is unchanged from 0.5.0.
+
+### Changed
+- Backend (Go) dependencies: `github.com/spf13/cobra` 1.9.1 → 1.10.2, `github.com/spf13/viper` 1.20.1 → 1.21.0, `github.com/rs/zerolog` 1.34.0 → 1.35.1, `github.com/mark3labs/mcp-go` 0.54.0 → 0.55.1, and `go.etcd.io/etcd/client/v3` 3.6.1 → 3.6.12.
+- Frontend (npm) dependencies: `vite` 6.3.5 → 8.1.0, `vitest` 2.1.9 → 4.1.9, `typescript` 5.8.3 → 6.0.3, `lucide-react` 0.515.0 → 1.21.0, `react`/`react-dom` 19.1.0 → 19.2.7 (with `@types/react` 19.1.7 → 19.2.17, `@types/react-dom` 19.1.6 → 19.2.3), `@types/node` 22.14.1 → 26.0.1, `globals` 16.5.0 → 17.7.0, `prettier` 3.5.3 → 3.8.5, `sass-embedded` 1.89.2 → 1.100.0, and `eslint-config-prettier` 10.1.5 → 10.1.8.
+- CI GitHub Actions: `actions/checkout` 4 → 7, `actions/setup-go` 5 → 6, `actions/setup-node` 4 → 6, `golangci/golangci-lint-action` 8 → 9, `docker/setup-buildx-action` 3 → 4, `docker/login-action` 3 → 4, `docker/build-push-action` 5 → 7, and `actions/attest-build-provenance` 2 → 4.
+- Dependabot (`.github/dependabot.yml`): group minor/patch version updates into a single PR per ecosystem (majors stay separate for review), group security updates per ecosystem, pin the weekly schedule to Mondays, and lower `open-pull-requests-limit` to 3.
+
+### Fixed
+- Frontend typecheck under TypeScript 6: declare side-effect stylesheet imports (`declare module '*.scss'`) so `import './styles/globals.scss'` no longer trips `TS2882`.
+
+### Notes
+- `eslint`/`@eslint/js` major bumps (eslint 10) are held back via a Dependabot `ignore`: `eslint-plugin-react` (latest 7.37.5) only declares peer support up to eslint `^9.7`. The ignore should be removed once the plugin ships eslint-10 support.
+
 ## [0.5.0] - 2026-06-25
 
 ### Added
