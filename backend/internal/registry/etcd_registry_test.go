@@ -9,42 +9,21 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/auto-dns/auto-dns-webui/internal/config"
-	"github.com/auto-dns/auto-dns-webui/internal/dns"
 )
 
-// mockEtcdClient implements the etcdClient interface with overridable Get/Delete.
+// mockEtcdClient implements the etcdClient interface with an overridable Get.
 type mockEtcdClient struct {
-	getFunc    func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error)
-	delFunc    func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.DeleteResponse, error)
-	deletedKey string
+	getFunc func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error)
 }
 
 func (m *mockEtcdClient) Get(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
 	return m.getFunc(ctx, key, opts...)
 }
 
-func (m *mockEtcdClient) Delete(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.DeleteResponse, error) {
-	if m.delFunc != nil {
-		return m.delFunc(ctx, key, opts...)
-	}
-	m.deletedKey = key
-	return &clientv3.DeleteResponse{Deleted: 1}, nil
-}
-
-func (m *mockEtcdClient) Put(ctx context.Context, key, val string, opts ...clientv3.OpOption) (*clientv3.PutResponse, error) {
-	return nil, nil
-}
-func (m *mockEtcdClient) Grant(ctx context.Context, ttl int64) (*clientv3.LeaseGrantResponse, error) {
-	return nil, nil
-}
-func (m *mockEtcdClient) Txn(ctx context.Context) clientv3.Txn { return nil }
-func (m *mockEtcdClient) Revoke(ctx context.Context, id clientv3.LeaseID) (*clientv3.LeaseRevokeResponse, error) {
-	return nil, nil
-}
 func (m *mockEtcdClient) Close() error { return nil }
 
 func newTestRegistry(client etcdClient) *EtcdRegistry {
-	return NewEtcdRegistry(client, &config.EtcdConfig{PathPrefix: "/skydns"}, "testhost", zerolog.Nop())
+	return NewEtcdRegistry(client, &config.EtcdConfig{PathPrefix: "/skydns"}, zerolog.Nop())
 }
 
 func TestParseEtcdValue(t *testing.T) {
@@ -137,24 +116,4 @@ func TestList(t *testing.T) {
 			t.Fatal("expected error to propagate from client.Get")
 		}
 	})
-}
-
-func TestRemove(t *testing.T) {
-	client := &mockEtcdClient{
-		getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
-			return &clientv3.GetResponse{Kvs: []*mvccpb.KeyValue{
-				{Key: []byte("/skydns/com/example/app/x1"), Value: []byte(`{"host":"10.0.0.1","record_type":"A","owner_hostname":"h1","owner_container_name":"web","created":"2024-01-02T03:04:05Z"}`)},
-			}}, nil
-		},
-	}
-	rec := &dns.Record{
-		Dns:  dns.DnsRecord{Name: "app.example.com", Type: "A", Value: "10.0.0.1"},
-		Meta: dns.RecordMetadata{Hostname: "h1", ContainerName: "web"},
-	}
-	if err := newTestRegistry(client).Remove(context.Background(), rec); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if client.deletedKey != "/skydns/com/example/app/x1" {
-		t.Errorf("deleted key = %q, want /skydns/com/example/app/x1", client.deletedKey)
-	}
 }

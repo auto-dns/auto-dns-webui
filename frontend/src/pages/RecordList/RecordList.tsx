@@ -38,6 +38,8 @@ export default function RecordList() {
 
   // Declare state
   const [records, setRecords] = useState<RecordEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useSidebarState();
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState(initialState.search);
@@ -48,13 +50,32 @@ export default function RecordList() {
   // Track if we should update URL (to avoid infinite loops during initialization)
   const isInitializing = useRef(true);
 
+  // Fetch records (retryable)
+  const loadRecords = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    fetch('/api/records')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data: RecordEntry[]) => {
+        setRecords(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch records:', err);
+        setError('Failed to load DNS records. Please try again.');
+        setLoading(false);
+      });
+  }, []);
+
   // Use effects
   useEffect(() => {
-    fetch('/api/records')
-      .then((res) => res.json())
-      .then((data) => setRecords(data))
-      .catch((err) => console.error('Failed to fetch records:', err));
-  }, []);
+    loadRecords();
+  }, [loadRecords]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -155,11 +176,24 @@ export default function RecordList() {
           </div>
         </header>
         <h2 className={styles.pageTitle}>DNS Records</h2>
-        <RecordGrid
-          records={sortedRecords}
-          expandedKeys={expandedKeys}
-          toggleExpand={toggleExpand}
-        />
+        {loading ? (
+          <div className={styles.statusMessage} role='status' aria-live='polite'>
+            Loading records…
+          </div>
+        ) : error ? (
+          <div className={styles.statusMessage} role='alert'>
+            <p>{error}</p>
+            <button className={styles.retryButton} onClick={loadRecords}>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <RecordGrid
+            records={sortedRecords}
+            expandedKeys={expandedKeys}
+            toggleExpand={toggleExpand}
+          />
+        )}
       </div>
     </div>
   );

@@ -85,15 +85,6 @@ func init() {
 	rootCmd.PersistentFlags().String("etcd.path-prefix", "", "etcd key path prefix (e.g., /skydns)")
 	_ = viper.BindPFlag("etcd.path_prefix", rootCmd.PersistentFlags().Lookup("etcd.path-prefix"))
 
-	rootCmd.PersistentFlags().Float64("etcd.lock_ttl", 0, "etcd lock ttl")
-	_ = viper.BindPFlag("etcd.lock_ttl", rootCmd.PersistentFlags().Lookup("etcd.lock_ttl"))
-
-	rootCmd.PersistentFlags().Float64("etcd.lock_timeout", 0, "etcd lock timeout")
-	_ = viper.BindPFlag("etcd.lock_timeout", rootCmd.PersistentFlags().Lookup("etcd.lock_timeout"))
-
-	rootCmd.PersistentFlags().Float64("etcd.lock_retry_interval", 0, "etcd lock retry interval")
-	_ = viper.BindPFlag("etcd.lock_retry_interval", rootCmd.PersistentFlags().Lookup("etcd.lock_retry_interval"))
-
 	// Log Flags
 	rootCmd.PersistentFlags().String("log.level", "", "Log level (e.g., TRACE, DEBUG, INFO, WARN, ERROR, FATAL)")
 	_ = viper.BindPFlag("log.level", rootCmd.PersistentFlags().Lookup("log.level"))
