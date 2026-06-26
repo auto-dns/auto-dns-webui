@@ -7,7 +7,7 @@ import "testing"
 func validConfig() Config {
 	return Config{
 		App:  AppConfig{Hostname: "dns1"},
-		Etcd: EtcdConfig{Host: "localhost", Port: 2379, PathPrefix: "/skydns", LockTTL: 5, LockTimeout: 2, LockRetryInterval: 0.1},
+		Etcd: EtcdConfig{Host: "localhost", Port: 2379, PathPrefix: "/skydns"},
 		Log:  LoggingConfig{Level: "INFO"},
 		MCP:  MCPConfig{Enabled: false, Port: 0},
 		Server: ServerConfig{
@@ -56,9 +56,6 @@ func TestValidate_Errors(t *testing.T) {
 		{"etcd port zero", func(c *Config) { c.Etcd.Port = 0 }},
 		{"etcd port too high", func(c *Config) { c.Etcd.Port = 70000 }},
 		{"empty path prefix", func(c *Config) { c.Etcd.PathPrefix = "" }},
-		{"lock ttl zero", func(c *Config) { c.Etcd.LockTTL = 0 }},
-		{"lock timeout zero", func(c *Config) { c.Etcd.LockTimeout = 0 }},
-		{"lock retry interval zero", func(c *Config) { c.Etcd.LockRetryInterval = 0 }},
 		{"invalid log level", func(c *Config) { c.Log.Level = "VERBOSE" }},
 		{"empty proxy hostname", func(c *Config) { c.Server.Proxy.Hostname = "" }},
 		{"proxy port zero", func(c *Config) { c.Server.Proxy.Port = 0 }},

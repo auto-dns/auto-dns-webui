@@ -9,7 +9,7 @@ type Record struct {
 
 type DnsRecord struct {
 	Name  string `json:"name"`
-	Type  string `json:"type"`  // A or CNAME
+	Type  string `json:"type"`  // A, AAAA, or CNAME
 	Value string `json:"value"` // IP or hostname
 }
 

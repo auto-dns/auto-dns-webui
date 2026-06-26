@@ -1,16 +1,18 @@
 package frontend
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 )
 
-func ProxyToVite() http.Handler {
-	target, err := url.Parse("http://localhost:5173")
+// ProxyToVite returns a reverse proxy to the Vite dev server at the given
+// hostname and port (dev mode only).
+func ProxyToVite(hostname string, port int) (http.Handler, error) {
+	target, err := url.Parse(fmt.Sprintf("http://%s:%d", hostname, port))
 	if err != nil {
-		log.Fatalf("Invalid Vite dev server URL: %v", err)
+		return nil, fmt.Errorf("invalid Vite dev server URL: %w", err)
 	}
-	return httputil.NewSingleHostReverseProxy(target)
+	return httputil.NewSingleHostReverseProxy(target), nil
 }

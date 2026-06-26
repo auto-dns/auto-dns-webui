@@ -17,6 +17,34 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Frontend: loading and error states for the record list. A failed `/api/records`
+  fetch now shows an error message with a **Retry** button instead of leaving a
+  permanently blank page, and a loading indicator is shown while fetching (#20).
+
+### Changed
+- MCP server now reports the application version instead of a hardcoded `1.0.0`.
+  The version is stamped into the binary at build time via
+  `-ldflags "-X .../internal/version.Version=<v>"` (defaulting to `dev` for
+  unstamped/local builds); release images are stamped from the git tag through
+  the Dockerfile `VERSION` build arg (#20).
+
+### Removed
+- Dead write-path scaffolding carried over from `docker-coredns-sync`: the unused
+  `Registry.Remove` and `Registry.LockTransaction` methods and the previously
+  **required** etcd lock configuration (`etcd.lock_ttl`, `etcd.lock_timeout`,
+  `etcd.lock_retry_interval`, with their CLI flags). They were only exercised by
+  the locking path, which this read-only app never invokes; operators no longer
+  need to set these meaningless values to start. Reintroduce locking alongside a
+  write/delete feature if one is ever added (#19).
+
+### Fixed
+- Dev-mode Vite reverse proxy now honors the configured `server.proxy.hostname`
+  and `server.proxy.port` instead of a hardcoded `http://localhost:5173`, and
+  `ProxyToVite` returns an error rather than calling `log.Fatalf` (#18).
+- Corrected the `dns.DnsRecord.Type` doc comment to note `AAAA` is supported, not
+  just `A`/`CNAME` (#20).
+
 ## [0.5.1] - 2026-06-26
 
 Maintenance release: dependency and CI updates plus Dependabot automation
