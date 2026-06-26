@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-26
+
 ### Added
 - Health and readiness endpoints. `GET /healthz` reports process liveness
   (always `200` while serving, never touches etcd) and `GET /readyz` reports
