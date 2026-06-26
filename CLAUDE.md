@@ -141,6 +141,11 @@ for the full guide. Key conventions:
   GHCR image and cuts a GitHub Release from the matching `## [MAJOR.MINOR.PATCH]`
   CHANGELOG section. Rename `## [Unreleased]` to the versioned heading before
   tagging.
+- **Bump `frontend/package.json`'s `version`** to the release's
+  `MAJOR.MINOR.PATCH` as part of cutting the release (same change that renames
+  the CHANGELOG heading), so it tracks the active line. The **git tag remains the
+  source of truth** for what shipped — this field is for humans/tooling reading
+  the source tree, so a lag is cosmetic, but keep it in sync each release.
 
 ## Pull request conventions
 

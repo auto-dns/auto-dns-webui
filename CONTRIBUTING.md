@@ -112,6 +112,13 @@ image tags. **Before tagging, rename the `## [Unreleased]` CHANGELOG section to
 `## [MAJOR.MINOR.PATCH] - YYYY-MM-DD`** — the release notes are empty if the
 section is missing.
 
+**Also bump `frontend/package.json`'s `version`** to the release's
+`MAJOR.MINOR.PATCH` in the same change that updates the CHANGELOG, so the source
+tree tracks the active line. The **git tag is the authoritative version** for a
+release (the GHCR image and GitHub Release are built from it); this field is
+informational for anyone reading the checked-out source, so a lag is harmless,
+but keep it in sync each release.
+
 ## Issues & labels
 
 Issue state encodes where work is in the release pipeline:

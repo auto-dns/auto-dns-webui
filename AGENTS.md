@@ -50,7 +50,10 @@ This app is a **downstream consumer** of the etcd record schema produced by
 - **Releases.** Pushing a `vMAJOR.MINOR.PATCH` tag triggers
   `.github/workflows/docker.yaml` (GHCR image + GitHub Release from the matching
   CHANGELOG section). Rename `## [Unreleased]` to the versioned heading before
-  tagging.
+  tagging, and bump `frontend/package.json`'s `version` to the same
+  `MAJOR.MINOR.PATCH` so it tracks the active line. (The git tag is the source of
+  truth for what shipped; this field is informational, but keep it in sync each
+  release.)
 
 ## Pull requests
 
