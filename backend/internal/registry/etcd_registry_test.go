@@ -117,3 +117,27 @@ func TestList(t *testing.T) {
 		}
 	})
 }
+
+func TestPing(t *testing.T) {
+	t.Run("ok when etcd answers", func(t *testing.T) {
+		client := &mockEtcdClient{
+			getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
+				return &clientv3.GetResponse{}, nil
+			},
+		}
+		if err := newTestRegistry(client).Ping(context.Background()); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("error when etcd unreachable", func(t *testing.T) {
+		client := &mockEtcdClient{
+			getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
+				return nil, context.DeadlineExceeded
+			},
+		}
+		if err := newTestRegistry(client).Ping(context.Background()); err == nil {
+			t.Fatal("expected error from Ping when client.Get fails")
+		}
+	})
+}

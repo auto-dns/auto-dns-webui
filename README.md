@@ -104,6 +104,55 @@ http://<host>:<mcp.port>/mcp
 
 ---
 
+## Endpoints
+
+The HTTP server (`server.port`, default `8080`) exposes:
+
+| Path | Description |
+|---|---|
+| `/` | The web UI (embedded SPA) |
+| `/api/records` | JSON list of all DNS records |
+| `/healthz` | Liveness — always `200 OK` while the process is serving. Does not touch etcd. |
+| `/readyz` | Readiness — `200 OK` when etcd is reachable, `503 Service Unavailable` otherwise (bounded by a short timeout). Use this as a container/orchestrator readiness probe. |
+| `/metrics` | Prometheus metrics (see below). |
+
+When the MCP server is enabled it also serves `/healthz` and `/readyz` on `mcp.port`, so the second server can be probed independently.
+
+### Health probes
+
+Docker / Kubernetes example using the readiness endpoint:
+
+```yaml
+healthcheck:
+  test: ["CMD", "wget", "-qO-", "http://localhost:8080/readyz"]
+  interval: 30s
+  timeout: 5s
+  retries: 3
+```
+
+### Prometheus metrics
+
+`GET /metrics` exposes the standard Go runtime/process collectors plus:
+
+| Metric | Type | Labels | Description |
+|---|---|---|---|
+| `auto_dns_webui_http_requests_total` | counter | `route`, `method`, `code` | HTTP requests handled (API and health routes) |
+| `auto_dns_webui_http_request_duration_seconds` | histogram | `route`, `method` | HTTP request latency |
+| `auto_dns_webui_dns_records` | gauge | — | Records returned by the most recent successful etcd list |
+| `auto_dns_webui_etcd_list_errors_total` | counter | — | Errors while listing records from etcd |
+| `auto_dns_webui_mcp_tool_calls_total` | counter | `tool` | MCP tool invocations by tool name |
+
+Example scrape config:
+
+```yaml
+scrape_configs:
+  - job_name: auto-dns-webui
+    static_configs:
+      - targets: ["auto-dns-webui:8080"]
+```
+
+---
+
 ## Development
 
 Open the project in VS Code and reopen in the Dev Container — it includes an etcd instance. Seed it with test records:

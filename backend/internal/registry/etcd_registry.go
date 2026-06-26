@@ -111,6 +111,14 @@ func (er *EtcdRegistry) List(ctx context.Context) ([]*dns.Record, error) {
 	return records, nil
 }
 
+// Ping performs a cheap reachability check against etcd. It issues a bounded,
+// keys-only range read under the configured prefix (at most one key) and
+// reports only whether etcd answered — the result is discarded.
+func (er *EtcdRegistry) Ping(ctx context.Context) error {
+	_, err := er.client.Get(ctx, er.cfg.PathPrefix, clientv3.WithPrefix(), clientv3.WithLimit(1), clientv3.WithKeysOnly())
+	return err
+}
+
 func (er *EtcdRegistry) Close() error {
 	return er.client.Close()
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/auto-dns/auto-dns-webui/internal/dns"
+	"github.com/auto-dns/auto-dns-webui/internal/metrics"
 	"github.com/auto-dns/auto-dns-webui/internal/version"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/rs/zerolog"
@@ -16,6 +17,7 @@ type dnsRegistry interface {
 
 type Deps struct {
 	Registry dnsRegistry
+	Metrics  *metrics.Metrics
 	Logger   zerolog.Logger
 }
 
