@@ -8,6 +8,8 @@ import (
 	"github.com/auto-dns/auto-dns-webui/internal/api"
 	"github.com/auto-dns/auto-dns-webui/internal/config"
 	"github.com/auto-dns/auto-dns-webui/internal/frontend"
+	"github.com/auto-dns/auto-dns-webui/internal/health"
+	"github.com/auto-dns/auto-dns-webui/internal/metrics"
 	"github.com/rs/zerolog"
 )
 
@@ -17,15 +19,19 @@ type Server struct {
 	mux     *http.ServeMux
 	http    *http.Server
 	handler api.HandlerInterface
+	health  *health.Handler
+	metrics *metrics.Metrics
 }
 
-func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cfg *config.ServerConfig, logger zerolog.Logger) (*Server, error) {
+func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, health *health.Handler, metrics *metrics.Metrics, cfg *config.ServerConfig, logger zerolog.Logger) (*Server, error) {
 	s := &Server{
 		cfg:     cfg,
 		logger:  logger,
 		mux:     mux,
 		http:    http,
 		handler: handler,
+		health:  health,
+		metrics: metrics,
 	}
 	if err := s.registerRoutes(); err != nil {
 		return nil, err
@@ -34,8 +40,13 @@ func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cf
 }
 
 func (s *Server) registerRoutes() error {
-	// API routes
-	s.mux.HandleFunc("/api/records", s.handler.Records)
+	// API routes (instrumented for request/latency metrics).
+	s.mux.Handle("/api/records", s.metrics.InstrumentHandler("/api/records", http.HandlerFunc(s.handler.Records)))
+
+	// Operational endpoints.
+	s.mux.Handle("/healthz", s.metrics.InstrumentHandler("/healthz", http.HandlerFunc(s.health.Healthz)))
+	s.mux.Handle("/readyz", s.metrics.InstrumentHandler("/readyz", http.HandlerFunc(s.health.Readyz)))
+	s.mux.Handle("/metrics", s.metrics.Handler())
 
 	// Frontend
 	if s.cfg.Proxy.Enable {

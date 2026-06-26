@@ -61,17 +61,27 @@ func registerTools(s *server.MCPServer, d Deps) {
 		mcp.WithString("name", mcp.Description("Substring to match against the DNS name (case-insensitive).")),
 		mcp.WithString("type", mcp.Description(`Record type filter: "A", "AAAA", or "CNAME".`)),
 		mcp.WithString("hostname", mcp.Description("Exact hostname of the docker-coredns-sync node that registered the record.")),
-	), makeListDNSRecords(d))
+	), instrument(d, "list_dns_records", makeListDNSRecords(d)))
 
 	s.AddTool(mcp.NewTool("get_dns_record",
 		mcp.WithDescription("Look up all DNS records for an exact fully-qualified domain name (FQDN). Returns a list — the same FQDN may have multiple records (e.g. two A records from different containers)."),
 		mcp.WithString("name", mcp.Required(), mcp.Description("Exact FQDN to look up (e.g. myservice.home.example.com).")),
-	), makeGetDNSRecord(d))
+	), instrument(d, "get_dns_record", makeGetDNSRecord(d)))
 
 	s.AddTool(mcp.NewTool("get_records_by_host",
 		mcp.WithDescription("Get all DNS records registered by a specific docker-coredns-sync node, identified by hostname."),
 		mcp.WithString("hostname", mcp.Required(), mcp.Description("Exact hostname of the docker-coredns-sync node (e.g. homeserver).")),
-	), makeGetRecordsByHost(d))
+	), instrument(d, "get_records_by_host", makeGetRecordsByHost(d)))
+}
+
+// instrument wraps a tool handler to count invocations under its tool name.
+func instrument(d Deps, name string, next server.ToolHandlerFunc) server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		if d.Metrics != nil {
+			d.Metrics.RecordMCPToolCall(name)
+		}
+		return next(ctx, req)
+	}
 }
 
 // --- Tool handlers ---
