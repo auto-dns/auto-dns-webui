@@ -40,7 +40,7 @@ func TestProxyToVite_HonorsConfiguredTarget(t *testing.T) {
 	if err != nil {
 		t.Fatalf("request through proxy failed: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("status = %d, want 200 — proxy did not reach the configured target", resp.StatusCode)
