@@ -21,9 +21,10 @@ type Server struct {
 	handler api.HandlerInterface
 	health  *health.Handler
 	metrics *metrics.Metrics
+	stream  http.Handler
 }
 
-func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, health *health.Handler, metrics *metrics.Metrics, cfg *config.ServerConfig, logger zerolog.Logger) (*Server, error) {
+func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, health *health.Handler, metrics *metrics.Metrics, stream http.Handler, cfg *config.ServerConfig, logger zerolog.Logger) (*Server, error) {
 	s := &Server{
 		cfg:     cfg,
 		logger:  logger,
@@ -32,6 +33,7 @@ func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, he
 		handler: handler,
 		health:  health,
 		metrics: metrics,
+		stream:  stream,
 	}
 	if err := s.registerRoutes(); err != nil {
 		return nil, err
@@ -42,6 +44,14 @@ func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, he
 func (s *Server) registerRoutes() error {
 	// API routes (instrumented for request/latency metrics).
 	s.mux.Handle("/api/records", s.metrics.InstrumentHandler("/api/records", http.HandlerFunc(s.handler.Records)))
+
+	// Live record stream (SSE). Deliberately not wrapped in the latency
+	// histogram: these are long-lived connections, so a request-duration
+	// observation (recorded only on disconnect) would be meaningless. Connected
+	// clients are tracked by the stream gauge instead.
+	if s.stream != nil {
+		s.mux.Handle("/api/records/stream", s.stream)
+	}
 
 	// Operational endpoints.
 	s.mux.Handle("/healthz", s.metrics.InstrumentHandler("/healthz", http.HandlerFunc(s.health.Healthz)))

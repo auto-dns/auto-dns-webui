@@ -17,6 +17,7 @@ import (
 // etcdClient is the subset of clientv3.Client this read-only app needs.
 type etcdClient interface {
 	Get(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error)
+	Watch(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan
 	Close() error
 }
 
@@ -109,6 +110,44 @@ func (er *EtcdRegistry) List(ctx context.Context) ([]*dns.Record, error) {
 		records = append(records, record)
 	}
 	return records, nil
+}
+
+// Watch establishes an etcd watch on the configured prefix and returns a
+// channel that emits a value whenever the record set under that prefix changes.
+// Notifications are coalesced: the channel has a buffer of one and a pending
+// notification is dropped rather than blocking, so a burst of etcd events
+// surfaces as a single "something changed" signal — consumers re-List to get
+// the current state. The channel is closed when the watch ends (ctx cancelled,
+// or the watch is cancelled/errors by etcd), which signals the consumer to
+// re-establish it.
+func (er *EtcdRegistry) Watch(ctx context.Context) (<-chan struct{}, error) {
+	wch := er.client.Watch(ctx, er.cfg.PathPrefix, clientv3.WithPrefix())
+	out := make(chan struct{}, 1)
+	go func() {
+		defer close(out)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case resp, ok := <-wch:
+				if !ok {
+					return
+				}
+				if err := resp.Err(); err != nil {
+					er.logger.Error().Err(err).Msg("etcd watch error")
+					return
+				}
+				if len(resp.Events) == 0 {
+					continue
+				}
+				select {
+				case out <- struct{}{}:
+				default:
+				}
+			}
+		}
+	}()
+	return out, nil
 }
 
 // Ping performs a cheap reachability check against etcd. It issues a bounded,

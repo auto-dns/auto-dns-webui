@@ -13,6 +13,7 @@ import (
 	"github.com/auto-dns/auto-dns-webui/internal/metrics"
 	"github.com/auto-dns/auto-dns-webui/internal/registry"
 	"github.com/auto-dns/auto-dns-webui/internal/server"
+	"github.com/auto-dns/auto-dns-webui/internal/stream"
 	"github.com/rs/zerolog"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -20,6 +21,7 @@ import (
 type App struct {
 	Logger    zerolog.Logger
 	Server    httpServer
+	Broker    *stream.Broker
 	MCPServer *http.Server
 }
 
@@ -39,7 +41,7 @@ func NewHandler(r registry.Registry, m *metrics.Metrics, logger zerolog.Logger) 
 	return api.NewHandler(r, m, logger)
 }
 
-func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, healthHandler *health.Handler, m *metrics.Metrics, logger zerolog.Logger) (httpServer, error) {
+func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, healthHandler *health.Handler, m *metrics.Metrics, broker http.Handler, logger zerolog.Logger) (httpServer, error) {
 	mux := http.NewServeMux()
 
 	http := &http.Server{
@@ -47,7 +49,7 @@ func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, healthHan
 		Handler: mux,
 	}
 
-	return server.New(http, mux, handler, healthHandler, m, cfg, logger)
+	return server.New(http, mux, handler, healthHandler, m, broker, cfg, logger)
 }
 
 // New creates a new App by wiring up all dependencies.
@@ -60,8 +62,9 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 	m := metrics.New()
 	handler := NewHandler(reg, m, logger)
 	healthHandler := health.New(reg, logger)
+	broker := stream.NewBroker(reg, m, logger)
 
-	srv, err := NewServer(&cfg.Server, handler, healthHandler, m, logger)
+	srv, err := NewServer(&cfg.Server, handler, healthHandler, m, broker, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create server: %w", err)
 	}
@@ -91,6 +94,7 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 	return &App{
 		Logger:    logger,
 		Server:    srv,
+		Broker:    broker,
 		MCPServer: mcpHTTP,
 	}, nil
 }
@@ -98,6 +102,10 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 // Run starts the application by running the sync engine.
 func (a *App) Run(ctx context.Context) error {
 	a.Logger.Info().Msg("Application starting")
+
+	if a.Broker != nil {
+		go a.Broker.Run(ctx)
+	}
 
 	if a.MCPServer != nil {
 		go func() {

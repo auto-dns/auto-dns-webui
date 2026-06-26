@@ -1,0 +1,62 @@
+@use '../../styles/variables' as *;
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+}
+
+.live {
+  color: #1a8f4a;
+
+  .dot {
+    background-color: #1fb05a;
+    box-shadow: 0 0 0 3px rgba(31, 176, 90, 0.2);
+  }
+}
+
+.polling .dot,
+.connecting .dot {
+  background-color: #d9a200;
+  box-shadow: 0 0 0 3px rgba(217, 162, 0, 0.2);
+}
+
+.updated {
+  white-space: nowrap;
+}
+
+.refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--card-border);
+  }
+}
