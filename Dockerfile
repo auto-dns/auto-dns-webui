@@ -12,8 +12,12 @@ RUN go mod download
 COPY backend/ .
 # Copy built frontend into the Go backend directory to be embedded
 COPY --from=frontend-builder /frontend/dist ./internal/frontend/dist
+# Version stamped into the binary (defaults to "dev"; release builds pass the tag)
+ARG VERSION=dev
 # Build the Go binary with embedded frontend
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o auto-dns-webui ./cmd/auto-dns-webui
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-s -w -X github.com/auto-dns/auto-dns-webui/internal/version.Version=${VERSION}" \
+    -o auto-dns-webui ./cmd/auto-dns-webui
 
 # ===== Stage 3: Dev Container =====
 FROM mcr.microsoft.com/devcontainers/go:1.26 AS dev

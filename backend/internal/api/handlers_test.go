@@ -21,11 +21,7 @@ type mockRegistry struct {
 }
 
 func (m *mockRegistry) List(ctx context.Context) ([]*dns.Record, error) { return m.records, m.err }
-func (m *mockRegistry) Remove(ctx context.Context, record *dns.Record) error { return nil }
-func (m *mockRegistry) LockTransaction(ctx context.Context, key []string, fn func() error) error {
-	return fn()
-}
-func (m *mockRegistry) Close() error { return nil }
+func (m *mockRegistry) Close() error                                    { return nil }
 
 func TestRecords_Success(t *testing.T) {
 	reg := &mockRegistry{records: []*dns.Record{

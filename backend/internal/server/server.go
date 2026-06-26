@@ -19,7 +19,7 @@ type Server struct {
 	handler api.HandlerInterface
 }
 
-func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cfg *config.ServerConfig, logger zerolog.Logger) *Server {
+func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cfg *config.ServerConfig, logger zerolog.Logger) (*Server, error) {
 	s := &Server{
 		cfg:     cfg,
 		logger:  logger,
@@ -27,22 +27,29 @@ func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, cf
 		http:    http,
 		handler: handler,
 	}
-	s.registerRoutes()
-	return s
+	if err := s.registerRoutes(); err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
-func (s *Server) registerRoutes() {
+func (s *Server) registerRoutes() error {
 	// API routes
 	s.mux.HandleFunc("/api/records", s.handler.Records)
 
 	// Frontend
 	if s.cfg.Proxy.Enable {
-		s.logger.Debug().Msg("Proxying frontend to Vite")
-		s.mux.Handle("/", frontend.ProxyToVite())
+		s.logger.Debug().Str("hostname", s.cfg.Proxy.Hostname).Int("port", s.cfg.Proxy.Port).Msg("Proxying frontend to Vite")
+		proxy, err := frontend.ProxyToVite(s.cfg.Proxy.Hostname, s.cfg.Proxy.Port)
+		if err != nil {
+			return err
+		}
+		s.mux.Handle("/", proxy)
 	} else {
 		s.logger.Debug().Msg("Serving embedded frontend")
 		s.mux.Handle("/", frontend.ServeStatic())
 	}
+	return nil
 }
 
 func (s *Server) Start(ctx context.Context) error {

@@ -29,7 +29,7 @@ func NewRegistry(cfg *config.Config, logger zerolog.Logger) (registry.Registry, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to etcd: %w", err)
 	}
-	reg := registry.NewEtcdRegistry(etcdClient, &cfg.Etcd, cfg.App.Hostname, logger)
+	reg := registry.NewEtcdRegistry(etcdClient, &cfg.Etcd, logger)
 	return reg, nil
 }
 
@@ -37,7 +37,7 @@ func NewHandler(r registry.Registry, logger zerolog.Logger) api.HandlerInterface
 	return api.NewHandler(r, logger)
 }
 
-func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, logger zerolog.Logger) httpServer {
+func NewServer(cfg *config.ServerConfig, handler api.HandlerInterface, logger zerolog.Logger) (httpServer, error) {
 	mux := http.NewServeMux()
 
 	http := &http.Server{
@@ -57,7 +57,10 @@ func New(cfg *config.Config, logger zerolog.Logger) (*App, error) {
 
 	handler := NewHandler(reg, logger)
 
-	srv := NewServer(&cfg.Server, handler, logger)
+	srv, err := NewServer(&cfg.Server, handler, logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create server: %w", err)
+	}
 
 	var mcpHTTP *http.Server
 	if cfg.MCP.Enabled {

@@ -89,8 +89,9 @@ etcdctl --endpoints http://etcd:2379 get --prefix /skydns
    segment and **reversing** the remaining domain labels, then unmarshals the
    JSON value (`host`, `record_type`, `owner_hostname`, `owner_container_id`,
    `owner_container_name`, `created`, `force`) into a `dns.Record`. `List` is the
-   only method the app actually calls. (`Remove`/`LockTransaction` exist but are
-   currently unused — see the open tech-debt issue.)
+   only registry method (this is a read-only app); the unused `Remove`/
+   `LockTransaction` write-path scaffolding and its required lock config were
+   removed. Reintroduce locking alongside a delete feature if/when that lands.
 5. **`backend/internal/api/handlers.go`** — `Records` calls `Registry.List` and
    writes the records as JSON to `GET /api/records`.
 6. **`backend/internal/server/server.go`** — Registers `/api/records` and mounts

@@ -22,12 +22,9 @@ type AppConfig struct {
 }
 
 type EtcdConfig struct {
-	Host              string  `mapstructure:"host"`
-	Port              int     `mapstructure:"port"`
-	PathPrefix        string  `mapstructure:"path_prefix"`
-	LockTTL           float64 `mapstructure:"lock_ttl"`
-	LockTimeout       float64 `mapstructure:"lock_timeout"`
-	LockRetryInterval float64 `mapstructure:"lock_retry_interval"`
+	Host       string `mapstructure:"host"`
+	Port       int    `mapstructure:"port"`
+	PathPrefix string `mapstructure:"path_prefix"`
 }
 
 type LoggingConfig struct {
@@ -95,9 +92,6 @@ func initConfig() error {
 	viper.SetDefault("etcd.host", "localhost")
 	viper.SetDefault("etcd.port", 2379)
 	viper.SetDefault("etcd.path_prefix", "/skydns")
-	viper.SetDefault("etcd.lock_ttl", 5.0)
-	viper.SetDefault("etcd.lock_timeout", 2.0)
-	viper.SetDefault("etcd.lock_retry_interval", 0.1)
 	viper.SetDefault("log.level", "INFO")
 	viper.SetDefault("mcp.enabled", false)
 	viper.SetDefault("mcp.port", 0)
@@ -129,15 +123,6 @@ func (c *Config) validate() error {
 	}
 	if c.Etcd.PathPrefix == "" {
 		return fmt.Errorf("etcd.path_prefix cannot be empty")
-	}
-	if c.Etcd.LockTTL <= 0 {
-		return fmt.Errorf("etcd.lock_ttl must be > 0")
-	}
-	if c.Etcd.LockTimeout <= 0 {
-		return fmt.Errorf("etcd.lock_timeout must be > 0")
-	}
-	if c.Etcd.LockRetryInterval <= 0 {
-		return fmt.Errorf("etcd.lock_retry_interval must be > 0")
 	}
 	validLevels := map[string]struct{}{
 		"TRACE": {}, "DEBUG": {}, "INFO": {}, "WARN": {}, "ERROR": {}, "FATAL": {},
