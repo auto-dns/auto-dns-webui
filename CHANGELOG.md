@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-26
+
 ### Added
 - Frontend: loading and error states for the record list. A failed `/api/records`
   fetch now shows an error message with a **Retry** button instead of leaving a
