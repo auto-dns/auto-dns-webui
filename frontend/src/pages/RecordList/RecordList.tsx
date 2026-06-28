@@ -44,19 +44,9 @@ export default function RecordList() {
   const [search, setSearch] = useState(initialState.search);
   const [filters, setFilters] = useState<Filters>(initialState.filters);
   const [sort, setSort] = useState<SortState>(initialState.sort);
-  const [scrolled, setScrolled] = useState(false);
 
   // Track if we should update URL (to avoid infinite loops during initialization)
   const isInitializing = useRef(true);
-
-  // Use effects
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Mark initialization as complete after first render
   useEffect(() => {

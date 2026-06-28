@@ -21,11 +21,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Live record refresh. The record list now stays current without a manual page
   reload: the backend exposes a Server-Sent Events endpoint
   (`GET /api/records/stream`) backed by a single etcd `Watch` on the configured
-  `path_prefix`, fanning record snapshots out to all connected clients. The web
-  UI consumes the stream and falls back to polling `/api/records` when SSE is
-  unavailable (e.g. behind a buffering proxy), pausing updates while the tab is
-  hidden. A connection-status indicator, a "last updated" time, and a manual
-  **Refresh** control were added to the UI. New Prometheus gauge
+  `path_prefix`, fanning record snapshots out to all connected clients, with a
+  periodic `ping` heartbeat event. The web UI consumes the stream and falls back
+  to polling `/api/records` when SSE is unavailable, errors, or opens but goes
+  silent (e.g. behind a buffering proxy — detected via a heartbeat watchdog),
+  pausing updates while the tab is hidden. A connection-status indicator, a
+  "last updated" time, and a manual **Refresh** control were added to the UI.
+  New Prometheus gauge
   `auto_dns_webui_stream_clients` reports the number of connected stream clients
   (#23).
 

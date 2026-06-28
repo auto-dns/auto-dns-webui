@@ -132,7 +132,7 @@ data: [{"dnsRecord":{...},"metadata":{...}}, ...]
 
 ```
 
-Idle connections receive a `: ping` comment roughly every 25 seconds to keep proxies from dropping them. The web UI consumes this stream automatically and transparently falls back to polling `/api/records` if the stream is unavailable (e.g. behind a proxy that buffers responses).
+Idle connections receive a `ping` event roughly every 25 seconds to keep proxies from dropping them and to give clients a liveness signal. The web UI consumes this stream automatically and transparently falls back to polling `/api/records` if the stream is unavailable, errors, or opens but goes silent (e.g. behind a proxy that buffers responses) — if no `records` update or `ping` arrives within ~40 seconds the UI switches to polling.
 
 ### Health probes
 

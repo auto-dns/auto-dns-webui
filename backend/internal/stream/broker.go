@@ -189,7 +189,7 @@ func (b *Broker) unsubscribe(s *subscriber) {
 
 // ServeHTTP implements the SSE endpoint: it holds the connection open and
 // writes a `records` event (current snapshot, then one per change) plus
-// periodic heartbeat comments until the client disconnects.
+// periodic `ping` heartbeat events until the client disconnects.
 func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -224,7 +224,11 @@ func (b *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			flusher.Flush()
 		case <-heartbeat.C:
-			if _, err := fmt.Fprint(w, ": ping\n\n"); err != nil {
+			// A named `ping` event (rather than a bare comment) keeps proxies
+			// from dropping the connection *and* gives clients a visible
+			// liveness signal so they can tell an idle-but-healthy stream from a
+			// stalled one (EventSource does not surface comment lines to JS).
+			if _, err := fmt.Fprint(w, "event: ping\ndata: {}\n\n"); err != nil {
 				return
 			}
 			flusher.Flush()
