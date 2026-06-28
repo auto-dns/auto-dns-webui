@@ -10,6 +10,7 @@ It optionally exposes an MCP (Model Context Protocol) server so AI tools like Cl
 
 - Browse all A/AAAA/CNAME records registered in etcd (SkyDNS format)
 - Filter by name, type, or source host
+- Live updates: the record list refreshes automatically as etcd changes (server-pushed over SSE, with polling fallback), plus a manual refresh and a "last updated" indicator
 - Optional MCP server: `list_dns_records`, `get_dns_record`, `get_records_by_host`
 
 ---
@@ -112,11 +113,26 @@ The HTTP server (`server.port`, default `8080`) exposes:
 |---|---|
 | `/` | The web UI (embedded SPA) |
 | `/api/records` | JSON list of all DNS records |
+| `/api/records/stream` | Server-Sent Events stream of record snapshots (see below) |
 | `/healthz` | Liveness — always `200 OK` while the process is serving. Does not touch etcd. |
 | `/readyz` | Readiness — `200 OK` when etcd is reachable, `503 Service Unavailable` otherwise (bounded by a short timeout). Use this as a container/orchestrator readiness probe. |
 | `/metrics` | Prometheus metrics (see below). |
 
 When the MCP server is enabled it also serves `/healthz` and `/readyz` on `mcp.port`, so the second server can be probed independently.
+
+### Live record stream
+
+`GET /api/records/stream` is a [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) endpoint that keeps the UI current without manual reloads. The backend runs a single etcd `Watch` on the configured `path_prefix` and fans changes out to all connected clients, so the cost on etcd is constant regardless of how many browsers are open.
+
+On connect, and again whenever the record set changes, the server emits a `records` event whose `data` is the same JSON array returned by `/api/records`:
+
+```
+event: records
+data: [{"dnsRecord":{...},"metadata":{...}}, ...]
+
+```
+
+Idle connections receive a `ping` event roughly every 25 seconds to keep proxies from dropping them and to give clients a liveness signal. The web UI consumes this stream automatically and transparently falls back to polling `/api/records` if the stream is unavailable, errors, or opens but goes silent (e.g. behind a proxy that buffers responses) — if no `records` update or `ping` arrives within ~40 seconds the UI switches to polling.
 
 ### Health probes
 
@@ -139,6 +155,7 @@ healthcheck:
 | `auto_dns_webui_http_requests_total` | counter | `route`, `method`, `code` | HTTP requests handled (API and health routes) |
 | `auto_dns_webui_http_request_duration_seconds` | histogram | `route`, `method` | HTTP request latency |
 | `auto_dns_webui_dns_records` | gauge | — | Records returned by the most recent successful etcd list |
+| `auto_dns_webui_stream_clients` | gauge | — | Currently connected record-stream (SSE) clients |
 | `auto_dns_webui_etcd_list_errors_total` | counter | — | Errors while listing records from etcd |
 | `auto_dns_webui_mcp_tool_calls_total` | counter | `tool` | MCP tool invocations by tool name |
 
