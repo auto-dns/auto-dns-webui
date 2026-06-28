@@ -113,7 +113,7 @@ func TestBrokerServeHTTP(t *testing.T) {
 	if err != nil {
 		t.Fatalf("connecting: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if ct := resp.Header.Get("Content-Type"); ct != "text/event-stream" {
 		t.Fatalf("content-type = %q, want text/event-stream", ct)
 	}
@@ -142,7 +142,7 @@ func TestBrokerServeHTTP(t *testing.T) {
 		t.Fatalf("stream client count = %d, want 1", got)
 	}
 
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	deadline := time.Now().Add(2 * time.Second)
 	for m.count() != 0 {
 		if time.Now().After(deadline) {
