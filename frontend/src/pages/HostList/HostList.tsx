@@ -1,9 +1,11 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import HostGrid from '../../components/HostGrid/HostGrid';
 import HostModal from '../../components/HostModal/HostModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
+import ListStatus from '../../components/ListStatus/ListStatus';
 import { useHosts } from '../../hooks/useHosts';
+import { useUrlSync } from '../../hooks/useUrlSync';
 import { filterHosts } from '../../utils/host';
 import styles from './HostList.module.scss';
 
@@ -25,6 +27,20 @@ export default function HostList() {
     () => paramFromUrl(HOST_SELECTED_PARAM) || null,
   );
 
+  // Build the full query for this view (keep `view=hosts`, drop any stale
+  // record-list params), then sync it to the URL via the shared hook.
+  const queryString = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set('view', 'hosts');
+    if (search.trim()) params.set(HOST_SEARCH_PARAM, search.trim());
+    if (activeHostKey) params.set(HOST_SELECTED_PARAM, activeHostKey);
+    return params.toString();
+  }, [search, activeHostKey]);
+  useUrlSync(queryString, () => {
+    setSearch(paramFromUrl(HOST_SEARCH_PARAM));
+    setActiveHostKey(paramFromUrl(HOST_SELECTED_PARAM) || null);
+  });
+
   const deferredSearch = useDeferredValue(search);
   const filteredHosts = useMemo(() => filterHosts(hosts, deferredSearch), [hosts, deferredSearch]);
   // Resolve the open host from its key once hosts are loaded (so a deep-linked
@@ -33,39 +49,6 @@ export default function HostList() {
     () => hosts.find((h) => h.hostname === activeHostKey) ?? null,
     [hosts, activeHostKey],
   );
-
-  // Reflect search + open host in the URL (replace, so typing doesn't spam
-  // history), preserving any other params such as `view`.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    if (search.trim()) {
-      params.set(HOST_SEARCH_PARAM, search.trim());
-    } else {
-      params.delete(HOST_SEARCH_PARAM);
-    }
-    if (activeHostKey) {
-      params.set(HOST_SELECTED_PARAM, activeHostKey);
-    } else {
-      params.delete(HOST_SELECTED_PARAM);
-    }
-    const qs = params.toString();
-    window.history.replaceState(
-      null,
-      '',
-      qs ? `${window.location.pathname}?${qs}` : window.location.pathname,
-    );
-  }, [search, activeHostKey]);
-
-  // Keep state in sync with back/forward navigation.
-  useEffect(() => {
-    const onPopState = () => {
-      setSearch(paramFromUrl(HOST_SEARCH_PARAM));
-      setActiveHostKey(paramFromUrl(HOST_SELECTED_PARAM) || null);
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, []);
 
   return (
     <div className={styles.hostList}>
@@ -85,17 +68,13 @@ export default function HostList() {
           noun={hosts.length === 1 ? 'host' : 'hosts'}
         />
       )}
-      {loading ? (
-        <div className={styles.statusMessage} role="status" aria-live="polite">
-          Loading hosts…
-        </div>
-      ) : error ? (
-        <div className={styles.statusMessage} role="alert">
-          <p>{error}</p>
-          <button className={styles.retryButton} onClick={refresh}>
-            Retry
-          </button>
-        </div>
+      {loading || error ? (
+        <ListStatus
+          loading={loading}
+          error={error}
+          loadingLabel="Loading hosts…"
+          onRetry={refresh}
+        />
       ) : (
         <HostGrid
           hosts={filteredHosts}

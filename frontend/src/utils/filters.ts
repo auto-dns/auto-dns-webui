@@ -43,14 +43,17 @@ export function filterRecords(records: EnrichedRecordEntry[], filters: Filters, 
     const matchesSearch = r.searchable.includes(searchText);
 
     // Free-text field filters are case-insensitive to match the global search
-    // (typing "App" should find "app.example.com").
-    const matchesName = !filters.name || includesCI(r.dnsRecord.name, filters.name);
+    // (typing "App" should find "app.example.com"), and whitespace-only input is
+    // treated as inactive so it agrees with countActiveFilters / the URL state.
+    const name = filters.name.trim();
+    const containerId = filters.containerId.trim();
+    const containerName = filters.containerName.trim();
+    const matchesName = !name || includesCI(r.dnsRecord.name, name);
     const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);
     const matchesValue = !filters.value.length || filters.value.includes(r.dnsRecord.value);
-    const matchesContainerId =
-      !filters.containerId || includesCI(r.metadata.containerId, filters.containerId);
+    const matchesContainerId = !containerId || includesCI(r.metadata.containerId, containerId);
     const matchesContainerName =
-      !filters.containerName || includesCI(r.metadata.containerName, filters.containerName);
+      !containerName || includesCI(r.metadata.containerName, containerName);
     const matchesHostname =
       !filters.hostname.length || filters.hostname.includes(r.metadata.hostname);
     const matchesForce = !filters.force.length || filters.force.includes(r.metadata.force);

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, useRef, useDeferredValue } from 'react';
+import { useMemo, useState, useCallback, useDeferredValue } from 'react';
 import { Filters, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
@@ -6,11 +6,13 @@ import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import RecordModal from '../../components/RecordModal/RecordModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
+import ListStatus from '../../components/ListStatus/ListStatus';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable, getRecordKey } from '../../utils/record';
 import { filterRecords, getFacetCounts, countActiveFilters } from '../../utils/filters';
-import { parseFromUrl, updateUrl } from '../../utils/url';
+import { parseFromUrl, serializeToUrl } from '../../utils/url';
 import { useSidebarState } from '../../hooks/useSidebarState';
+import { useUrlSync } from '../../hooks/useUrlSync';
 import { useRecords } from '../../hooks/useRecords';
 import styles from './RecordList.module.scss';
 import classNames from 'classnames';
@@ -49,37 +51,19 @@ export default function RecordList() {
   const [filters, setFilters] = useState<Filters>(initialState.filters);
   const [sort, setSort] = useState<SortState>(initialState.sort);
 
-  // Track if we should update URL (to avoid infinite loops during initialization)
-  const isInitializing = useRef(true);
-
-  // Mark initialization as complete after first render
-  useEffect(() => {
-    isInitializing.current = false;
-  }, []);
-
-  // Sync URL whenever search, filters, sort, or the open record change (but not
-  // during initialization). Opening/closing the modal pushes a history entry,
-  // so the browser Back button also closes the modal.
-  useEffect(() => {
-    if (!isInitializing.current) {
-      updateUrl(search, filters, sort, activeRecordKey);
-    }
-  }, [search, filters, sort, activeRecordKey]);
-
-  // Handle browser navigation (back/forward buttons)
-  useEffect(() => {
-    const handlePopState = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const urlState = parseFromUrl(searchParams);
-      setSearch(urlState.search);
-      setFilters(urlState.filters);
-      setSort(urlState.sort);
-      setActiveRecordKey(urlState.selectedKey);
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  // Mirror state in the URL (replaceState, so it stays shareable/reloadable
+  // without polluting history) and apply Back/Forward changes back into state.
+  const queryString = useMemo(
+    () => serializeToUrl(search, filters, sort, activeRecordKey),
+    [search, filters, sort, activeRecordKey],
+  );
+  useUrlSync(queryString, () => {
+    const urlState = parseFromUrl(new URLSearchParams(window.location.search));
+    setSearch(urlState.search);
+    setFilters(urlState.filters);
+    setSort(urlState.sort);
+    setActiveRecordKey(urlState.selectedKey);
+  });
 
   // Defer the search term so filtering a large list stays off the typing path:
   // the input updates immediately while the (potentially expensive) re-filter
@@ -197,17 +181,13 @@ export default function RecordList() {
             noun={records.length === 1 ? 'record' : 'records'}
           />
         )}
-        {loading ? (
-          <div className={styles.statusMessage} role="status" aria-live="polite">
-            Loading records…
-          </div>
-        ) : error ? (
-          <div className={styles.statusMessage} role="alert">
-            <p>{error}</p>
-            <button className={styles.retryButton} onClick={refresh}>
-              Retry
-            </button>
-          </div>
+        {loading || error ? (
+          <ListStatus
+            loading={loading}
+            error={error}
+            loadingLabel="Loading records…"
+            onRetry={refresh}
+          />
         ) : (
           <RecordGrid
             records={sortedRecords}

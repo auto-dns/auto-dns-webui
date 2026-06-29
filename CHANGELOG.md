@@ -40,8 +40,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The Hosts view search is now persisted in the URL (under `hq`), matching the
   records view, so it survives reloads and is shareable.
 - The open record/host detail is now reflected in the URL (`record` / `host`),
-  so a specific detail view is shareable and reopens on reload; on the records
-  view the browser Back button also closes the modal.
+  so a specific detail view is shareable and reopens on reload. View state
+  (search, filters, sort, the open item) is written with `replaceState`, so it
+  no longer adds a browser-history entry per keystroke/filter; Back/Forward move
+  between actual navigations rather than through every interaction.
 - Large-list performance: filtering is deferred off the typing path
   (`useDeferredValue`) so the search box stays responsive, and off-screen cards
   skip rendering via CSS `content-visibility`. (For very large sets — tens of
@@ -49,8 +51,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 - Free-text filters (Record Name, Container Name, Container ID) are now matched
-  case-insensitively, consistent with the global search — e.g. typing `App`
-  matches `app.example.com`.
+  case-insensitively (and ignore whitespace-only input), consistent with the
+  global search — e.g. typing `App` matches `app.example.com`.
+- The detail modal now traps Tab focus within the dialog (previously focus could
+  escape to the page behind it) and no longer re-steals focus or re-runs its
+  scroll lock when the list refreshes in the background while it's open.
+- Switching tabs / typing no longer corrupts browser history, and closing the
+  modal then pressing Back no longer re-opens it (both were caused by writing
+  view state with `pushState`).
 
 ## [0.9.0] - 2026-06-29
 

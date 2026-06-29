@@ -16,11 +16,18 @@ interface ModalProps {
 // (`{active && <Modal .../>}`) — it assumes it is only present while open.
 export default function Modal({ onClose, labelledBy, children }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  // Keep the latest onClose in a ref so the effect can run once (on mount) and
+  // not tear down / re-steal focus when the parent re-renders with a new inline
+  // onClose (e.g. on a background data refresh while the modal is open).
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
+    const close = () => onCloseRef.current();
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        close();
         return;
       }
       // Trap Tab focus within the dialog so keyboard users can't tab out into
@@ -31,20 +38,24 @@ export default function Modal({ onClose, labelledBy, children }: ModalProps) {
         const focusable = dialog.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
         );
-        if (focusable.length === 0) {
-          e.preventDefault();
-          dialog.focus();
-          return;
-        }
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
         const active = document.activeElement;
-        if (e.shiftKey && (active === first || active === dialog)) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && active === last) {
-          e.preventDefault();
-          first.focus();
+        const inDialog = active instanceof Node && dialog.contains(active);
+
+        if (e.shiftKey) {
+          // Backward from the first focusable (or the container) wraps to last.
+          if (!inDialog || active === first || active === dialog) {
+            e.preventDefault();
+            (last ?? dialog).focus();
+          }
+        } else {
+          // Forward from the last focusable (or the container, which is where
+          // focus lands on open and sits last in the portal DOM) wraps to first.
+          if (!inDialog || active === last || active === dialog) {
+            e.preventDefault();
+            (first ?? dialog).focus();
+          }
         }
       }
     };
@@ -64,7 +75,7 @@ export default function Modal({ onClose, labelledBy, children }: ModalProps) {
       document.body.style.overflow = previousOverflow;
       previouslyFocused?.focus?.();
     };
-  }, [onClose]);
+  }, []);
 
   return createPortal(
     <div className={styles.overlay} onClick={onClose}>

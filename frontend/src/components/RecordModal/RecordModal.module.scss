@@ -46,36 +46,7 @@
   min-width: 0;
 }
 
-.details {
-  margin: 0;
-  font-size: var(--text-md);
-}
-
-.row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--border);
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  dt {
-    flex: 0 0 35%;
-    color: var(--text-subtle);
-    font-weight: var(--weight-medium);
-  }
-
-  dd {
-    margin: 0;
-    flex: 1 1 auto;
-    min-width: 0;
-    color: var(--text);
-    overflow-wrap: anywhere;
-  }
-}
+@include modal-detail-rows(35%);
 
 .mono {
   font-family: var(--font-mono);
