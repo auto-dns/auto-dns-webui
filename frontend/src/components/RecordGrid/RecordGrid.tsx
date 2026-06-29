@@ -5,11 +5,10 @@ import styles from './RecordGrid.module.scss';
 
 interface RecordGridProps {
   records: RecordEntry[];
-  expandedKeys: Set<string>;
-  toggleExpand: (key: string) => void;
+  onSelect: (record: RecordEntry) => void;
 }
 
-export default function RecordGrid({ records, expandedKeys, toggleExpand }: RecordGridProps) {
+export default function RecordGrid({ records, onSelect }: RecordGridProps) {
   if (records.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -17,21 +16,12 @@ export default function RecordGrid({ records, expandedKeys, toggleExpand }: Reco
       </div>
     );
   }
-  
+
   return (
     <div className={styles.grid}>
-      {records.map((record) => {
-        const key = getRecordKey(record);
-        const isExpanded = expandedKeys.has(key);
-        return (
-          <RecordCard
-            key={key}
-            record={record}
-            isExpanded={isExpanded}
-            toggleExpand={toggleExpand}
-          />
-        );
-      })}
+      {records.map((record) => (
+        <RecordCard key={getRecordKey(record)} record={record} onSelect={onSelect} />
+      ))}
     </div>
   );
 }

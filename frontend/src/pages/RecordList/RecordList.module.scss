@@ -19,11 +19,10 @@
     flex-direction: column;
     height: 100%;
     overflow-y: auto;
-    width: 300px;
+    width: 320px;
     flex-shrink: 0;
-    background-color: var(--card-bg);
-    border-right: 1px solid var(--card-border);
-    height: 100%;
+    background-color: var(--surface-1);
+    border-right: 1px solid var(--border);
     position: absolute;
     left: 0;
     top: 0;
@@ -32,41 +31,38 @@
     transform: translateX(-100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transition:
+      transform var(--ease-emphasized),
+      opacity var(--ease-emphasized);
     will-change: transform, opacity;
 
     @include respond-max($breakpoint-md) {
       position: absolute;
-      height: 100vh;
+      height: 100%;
       min-height: 100%;
       max-height: 100%;
-      width: 100vw;
+      width: 100%;
       left: 0;
       right: 0;
       top: 0;
       bottom: 0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      background-color: var(--card-bg);
+      box-shadow: var(--shadow-lg);
     }
 
     &.show {
       transform: translateX(0);
       opacity: 1;
       pointer-events: auto;
-
-      @include respond-max($breakpoint-md) {
-        transform: translateX(0);
-      }
     }
   }
 
   .mainContent {
     flex-grow: 1;
     overflow-y: auto;
-    transition: margin-left 0.3s ease-in-out;
-    
+    transition: margin-left var(--ease-emphasized);
+
     &.shifted {
-      margin-left: 300px;
+      margin-left: 320px;
 
       @include respond-max($breakpoint-md) {
         margin-left: 0;
@@ -76,38 +72,53 @@
     .stickyHeader {
       position: sticky;
       top: 0;
+      z-index: 10;
       width: 100%;
-      background-color: var(--card-bg);
-      border-bottom: 1px solid var(--card-border);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-      padding: 0.75rem 1rem;
+      background-color: var(--surface-1);
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-3) var(--space-4);
 
       .toolbar {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+        gap: var(--space-3);
 
         .hamburger {
-          font-size: 1.25rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.25rem;
+          height: 2.25rem;
+          flex: 0 0 auto;
           background: none;
-          border: none;
-          color: var(--text-color);
+          border: 1px solid transparent;
+          border-radius: var(--radius-md);
+          color: var(--text-muted);
           cursor: pointer;
+          transition:
+            background-color var(--transition-fast),
+            color var(--transition-fast);
+
+          &:hover {
+            background-color: var(--surface-2);
+            color: var(--text-strong);
+          }
         }
 
         .searchWrapper {
           flex-grow: 1;
-          max-width: 500px;
+          max-width: 560px;
           margin: 0 auto;
         }
       }
     }
 
     .pageTitle {
-      margin: 1.25rem 0 0.75rem;
-      font-size: 1.4rem;
-      font-weight: 600;
+      margin: var(--space-5) 0 var(--space-3);
+      font-size: var(--text-xl);
+      font-weight: var(--weight-bold);
+      letter-spacing: -0.01em;
+      color: var(--text-strong);
       text-align: center;
     }
 
@@ -115,40 +126,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      padding: 2.5rem 1rem;
+      gap: var(--space-3);
+      padding: var(--space-12) var(--space-4);
       text-align: center;
-      color: var(--text-color);
+      color: var(--text-muted);
     }
 
     .retryButton {
       padding: 0.5rem 1.25rem;
-      font-size: 0.95rem;
-      color: var(--text-color);
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
+      font-size: var(--text-md);
+      font-weight: var(--weight-medium);
+      color: var(--accent-text);
+      background-color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
       cursor: pointer;
+      transition: background-color var(--transition-fast);
 
       &:hover {
-        background-color: var(--card-border);
+        background-color: var(--accent-hover);
       }
-    }
-  }
-}
-
-@include respond-max($breakpoint-md) {
-  .sidebar {
-    position: absolute;
-    height: 100vh;
-    min-height: 100%;
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
-    width: 100%;
-
-    &.show {
-      transform: translateX(0);
     }
   }
 }

@@ -17,6 +17,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- UI/UX polish pass across the SPA. Introduced a design-token foundation
+  (layered surface, text, accent, status and categorical-tag colors; spacing and
+  type scales; elevation, radii and motion tokens) in `frontend/src/styles` and
+  restyled every component against it for a more cohesive, polished look in both
+  light and dark themes and at mobile and desktop widths. DNS record types now
+  get color-coded badges and record values/IDs render in a monospace font for
+  faster scanning. Refreshed the app shell (brand + tabs top bar), search field,
+  status bar, filter/sort drawer and facet chips. No API, config, or behavior
+  changes — this is purely presentational.
+- Record and host details now open in a modal dialog (a bottom sheet on mobile)
+  instead of expanding the card in place, so opening details no longer reflows
+  the surrounding grid. Cards show an at-a-glance summary and are keyboard
+  operable; the dialog closes on Escape or backdrop click and restores focus.
+
 ## [0.9.0] - 2026-06-29
 
 ### Added

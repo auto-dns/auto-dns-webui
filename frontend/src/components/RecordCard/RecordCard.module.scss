@@ -2,128 +2,96 @@
 @use '../../styles/mixins' as *;
 
 .card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  position: relative;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
   cursor: pointer;
+  transition:
+    box-shadow var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-base);
 
   &:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .header {
-  padding-bottom: 1rem;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.5rem;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
 
-  span {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-
-    .type,
-    .arrow {
-      background-color: var(--header-bg);
-      color: var(--text-color);
-      padding: 0.25rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      flex: 0 0 auto;
-      min-width: 0.7rem;
-      justify-content: center;
-    }
-  }
+// Color-coded record-type badge (shared with the detail modal via the
+// type-badge mixin) so the list is fast to scan by record type.
+.type {
+  @include type-badge;
 }
 
 .name {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-md);
+  color: var(--text-strong);
   overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.valueRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.arrow {
+  color: var(--text-subtle);
+  flex: 0 0 auto;
 }
 
 .value {
-  font-weight: 500;
-  color: var(--text-color);
-  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
   overflow-wrap: anywhere;
+  min-width: 0;
 }
 
-.truncate {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  display: block;
-  max-width: 100%;
+// A single at-a-glance metadata line; the full detail set lives in the modal.
+.meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
 }
 
-.details {
-  font-size: 0.875rem;
-  line-height: 1.5;
+.metaLabel {
+  color: var(--text-subtle);
+  font-weight: var(--weight-medium);
+}
 
-  table {
-    font-weight: lighter;
-    color: var(--text-muted);
-    width: 100%;
-    table-layout: fixed;
-    word-break: break-word;
-
-    tr {
-      padding: 0;
-    }
-
-    td {
-      word-break: break-word;
-      padding: 0;
-      vertical-align: top;
-
-      &:first-of-type {
-        width: 35%;
-      }
-
-      &.value:nth-of-type(2) {
-        width: 65%;
-      }
-    }
-  }
+.metaValue {
+  color: var(--text);
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 @include respond-max($breakpoint-md) {
   .card {
-    padding: 0.75rem;
-    font-size: 0.95rem;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-
-  .details {
-    font-size: 0.8rem;
-
-    table {
-      td:first-of-type {
-        width: 40%;
-      }
-
-      td.value:nth-of-type(2) {
-        width: 60%;
-      }
-    }
-  }
-
-  .truncate {
-    max-width: 100%;
+    padding: var(--space-3);
   }
 }

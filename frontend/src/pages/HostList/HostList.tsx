@@ -1,25 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import HostGrid from '../../components/HostGrid/HostGrid';
+import HostModal from '../../components/HostModal/HostModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import { useHosts } from '../../hooks/useHosts';
 import { filterHosts } from '../../utils/host';
+import { HostSummary } from '../../types';
 import styles from './HostList.module.scss';
 
 export default function HostList() {
   const { hosts, loading, error, lastUpdated, status, refresh } = useHosts();
   const [search, setSearch] = useState('');
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+  const [activeHost, setActiveHost] = useState<HostSummary | null>(null);
 
   const filteredHosts = useMemo(() => filterHosts(hosts, search), [hosts, search]);
-
-  const toggleExpand = useCallback((key: string) => {
-    setExpandedKeys((prev) => {
-      const updated = new Set(prev);
-      updated.has(key) ? updated.delete(key) : updated.add(key);
-      return updated;
-    });
-  }, []);
 
   return (
     <div className={styles.hostList}>
@@ -44,8 +38,9 @@ export default function HostList() {
           </button>
         </div>
       ) : (
-        <HostGrid hosts={filteredHosts} expandedKeys={expandedKeys} toggleExpand={toggleExpand} />
+        <HostGrid hosts={filteredHosts} onSelect={setActiveHost} />
       )}
+      {activeHost && <HostModal host={activeHost} onClose={() => setActiveHost(null)} />}
     </div>
   );
 }

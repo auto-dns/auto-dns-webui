@@ -1,22 +1,71 @@
+@use '../../styles/variables' as *;
+
 .searchBar {
+  position: relative;
+  display: flex;
+  align-items: center;
   flex: 1 1 auto;
   min-width: 0; // ensures it can shrink properly in flex containers
   width: 100%;
 }
 
+.icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-subtle);
+  pointer-events: none;
+}
+
 .input {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.95rem;
-  border-radius: 6px;
-  border: 1px solid var(--card-border);
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  padding: 0.55rem 2.25rem;
+  font-size: var(--text-md);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background-color: var(--surface-2);
+  color: var(--text);
   box-sizing: border-box;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &::placeholder {
+    color: var(--text-subtle);
+  }
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
 
   &:focus {
-    border-color: var(--link-color);
+    border-color: var(--accent);
+    background-color: var(--surface-1);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(27, 117, 208, 0.2);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+}
+
+.clear {
+  position: absolute;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    background-color: var(--surface-3);
+    color: var(--text);
   }
 }

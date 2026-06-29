@@ -11,3 +11,55 @@
     @content;
   }
 }
+
+// Color-coded DNS record-type badge. Apply to an element that carries the
+// uppercased record type in `data-type`; known types get a semantic color and
+// anything else falls back to a neutral tag. Shared by RecordCard and
+// RecordModal so the badge looks identical wherever a type appears.
+@mixin type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+  background-color: var(--tag-gray-bg);
+  color: var(--tag-gray-fg);
+
+  &[data-type='A'] {
+    background-color: var(--tag-blue-bg);
+    color: var(--tag-blue-fg);
+  }
+  &[data-type='AAAA'] {
+    background-color: var(--tag-cyan-bg);
+    color: var(--tag-cyan-fg);
+  }
+  &[data-type='CNAME'] {
+    background-color: var(--tag-purple-bg);
+    color: var(--tag-purple-fg);
+  }
+  &[data-type='TXT'] {
+    background-color: var(--tag-amber-bg);
+    color: var(--tag-amber-fg);
+  }
+  &[data-type='MX'] {
+    background-color: var(--tag-green-bg);
+    color: var(--tag-green-fg);
+  }
+  &[data-type='SRV'] {
+    background-color: var(--tag-pink-bg);
+    color: var(--tag-pink-fg);
+  }
+  &[data-type='NS'] {
+    background-color: var(--tag-green-bg);
+    color: var(--tag-green-fg);
+  }
+  &[data-type='PTR'] {
+    background-color: var(--tag-gray-bg);
+    color: var(--tag-gray-fg);
+  }
+}

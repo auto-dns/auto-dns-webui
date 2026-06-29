@@ -5,39 +5,49 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  margin: 0 0 1rem;
-  font-size: 0.85rem;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
 .indicator {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-weight: 500;
+  gap: var(--space-2);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-2);
+  font-weight: var(--weight-medium);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--text-muted);
+  background-color: var(--text-subtle);
+  flex: 0 0 auto;
 }
 
 .live {
-  color: #1a8f4a;
+  color: var(--ok);
+  background-color: var(--tag-green-bg);
 
   .dot {
-    background-color: #1fb05a;
-    box-shadow: 0 0 0 3px rgba(31, 176, 90, 0.2);
+    background-color: var(--ok-dot);
+    box-shadow: 0 0 0 3px rgba(33, 177, 92, 0.2);
   }
 }
 
-.polling .dot,
-.connecting .dot {
-  background-color: #d9a200;
-  box-shadow: 0 0 0 3px rgba(217, 162, 0, 0.2);
+.polling,
+.connecting {
+  color: var(--warn);
+  background-color: var(--tag-amber-bg);
+
+  .dot {
+    background-color: var(--warn-dot);
+    box-shadow: 0 0 0 3px rgba(224, 168, 0, 0.2);
+  }
 }
 
 .updated {
@@ -47,16 +57,31 @@
 .refresh {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
-  color: var(--text-color);
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
+  gap: var(--space-2);
+  padding: 0.35rem 0.8rem;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
   cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+
+  svg {
+    transition: transform var(--ease-emphasized);
+  }
 
   &:hover {
-    background-color: var(--card-border);
+    background-color: var(--surface-2);
+    border-color: var(--border-strong);
+    color: var(--text-strong);
+
+    svg {
+      transform: rotate(90deg);
+    }
   }
 }

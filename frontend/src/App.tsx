@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { List, Server } from 'lucide-react';
+import { List, Server, Network } from 'lucide-react';
 import RecordList from './pages/RecordList/RecordList';
 import HostList from './pages/HostList/HostList';
 import styles from './App.module.scss';
@@ -12,9 +12,7 @@ type View = 'records' | 'hosts';
 // default and omits the parameter to keep the record list's own URL state clean.
 function viewFromLocation(): View {
   if (typeof window === 'undefined') return 'records';
-  return new URLSearchParams(window.location.search).get('view') === 'hosts'
-    ? 'hosts'
-    : 'records';
+  return new URLSearchParams(window.location.search).get('view') === 'hosts' ? 'hosts' : 'records';
 }
 
 export default function App() {
@@ -50,26 +48,34 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <nav className={styles.tabs} aria-label="Views">
-        <button
-          type="button"
-          className={classNames(styles.tab, { [styles.active]: view === 'records' })}
-          aria-current={view === 'records' ? 'page' : undefined}
-          onClick={() => changeView('records')}
-        >
-          <List size={16} aria-hidden="true" />
-          Records
-        </button>
-        <button
-          type="button"
-          className={classNames(styles.tab, { [styles.active]: view === 'hosts' })}
-          aria-current={view === 'hosts' ? 'page' : undefined}
-          onClick={() => changeView('hosts')}
-        >
-          <Server size={16} aria-hidden="true" />
-          Hosts
-        </button>
-      </nav>
+      <header className={styles.topbar}>
+        <span className={styles.brand}>
+          <span className={styles.brandMark} aria-hidden="true">
+            <Network size={16} />
+          </span>
+          <span className={styles.brandText}>Auto DNS</span>
+        </span>
+        <nav className={styles.tabs} aria-label="Views">
+          <button
+            type="button"
+            className={classNames(styles.tab, { [styles.active]: view === 'records' })}
+            aria-current={view === 'records' ? 'page' : undefined}
+            onClick={() => changeView('records')}
+          >
+            <List size={16} aria-hidden="true" />
+            Records
+          </button>
+          <button
+            type="button"
+            className={classNames(styles.tab, { [styles.active]: view === 'hosts' })}
+            aria-current={view === 'hosts' ? 'page' : undefined}
+            onClick={() => changeView('hosts')}
+          >
+            <Server size={16} aria-hidden="true" />
+            Hosts
+          </button>
+        </nav>
+      </header>
       <div className={styles.view}>{view === 'records' ? <RecordList /> : <HostList />}</div>
     </div>
   );

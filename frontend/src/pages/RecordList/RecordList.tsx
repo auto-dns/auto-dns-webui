@@ -1,9 +1,10 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { Filters, SortState } from '../../types';
+import { Filters, SortState, RecordEntry } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer';
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
+import RecordModal from '../../components/RecordModal/RecordModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
@@ -40,7 +41,7 @@ export default function RecordList() {
   // Declare state
   const { records, loading, error, lastUpdated, status, refresh } = useRecords();
   const [showSidebar, setShowSidebar] = useSidebarState();
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+  const [activeRecord, setActiveRecord] = useState<RecordEntry | null>(null);
   const [search, setSearch] = useState(initialState.search);
   const [filters, setFilters] = useState<Filters>(initialState.filters);
   const [sort, setSort] = useState<SortState>(initialState.sort);
@@ -91,14 +92,6 @@ export default function RecordList() {
   );
 
   // Set callbacks
-  const toggleExpand = useCallback((key: string) => {
-    setExpandedKeys((prev) => {
-      const updated = new Set(prev);
-      updated.has(key) ? updated.delete(key) : updated.add(key);
-      return updated;
-    });
-  }, []);
-
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
   }, []);
@@ -163,13 +156,10 @@ export default function RecordList() {
             </button>
           </div>
         ) : (
-          <RecordGrid
-            records={sortedRecords}
-            expandedKeys={expandedKeys}
-            toggleExpand={toggleExpand}
-          />
+          <RecordGrid records={sortedRecords} onSelect={setActiveRecord} />
         )}
       </div>
+      {activeRecord && <RecordModal record={activeRecord} onClose={() => setActiveRecord(null)} />}
     </div>
   );
 }
