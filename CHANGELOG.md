@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-06-29
+
 ### Added
 - Hosts view. A new **Hosts** tab summarizes each `docker-coredns-sync` node that
   publishes records: its online/offline status plus per-host record count, a
@@ -36,6 +38,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and captures longer-term ideas, cross-linked from the README and
   `CONTRIBUTING.md`. Added a `deferred` issue label for acknowledged-but-unscheduled
   work (#25).
+
+### Fixed
+- `make build`, `make dev`, and `make prod` now run from the backend Go module
+  and target `./cmd/auto-dns-webui` (the targets previously invoked `go` against
+  `./backend` from the repo root and failed with "cannot find main module").
+  `make prod` also now copies the built frontend into the embed directory
+  (`internal/frontend/dist`) it is actually served from (#66).
 
 ### Notes
 - Additive to the public contract: a new `GET /api/hosts` endpoint and a new
