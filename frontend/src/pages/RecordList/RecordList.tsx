@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { Filters, SortState, RecordEntry } from '../../types';
+import { useMemo, useState, useEffect, useCallback, useRef, useDeferredValue } from 'react';
+import { Filters, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer';
@@ -7,7 +7,7 @@ import RecordGrid from '../../components/RecordGrid/RecordGrid';
 import RecordModal from '../../components/RecordModal/RecordModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
-import { enrichSearchable } from '../../utils/record';
+import { enrichSearchable, getRecordKey } from '../../utils/record';
 import { filterRecords, getFacetCounts, countActiveFilters } from '../../utils/filters';
 import { parseFromUrl, updateUrl } from '../../utils/url';
 import { useSidebarState } from '../../hooks/useSidebarState';
@@ -35,13 +35,16 @@ export default function RecordList() {
         force: [],
       },
       sort: [{ key: 'dnsRecord.name' as const, ascending: true }],
+      selectedKey: null as string | null,
     };
   }, []);
 
   // Declare state
   const { records, loading, error, lastUpdated, status, refresh } = useRecords();
   const [showSidebar, setShowSidebar] = useSidebarState();
-  const [activeRecord, setActiveRecord] = useState<RecordEntry | null>(null);
+  // The open record is tracked by its key (and mirrored in the URL) so a detail
+  // view is shareable and survives reload; the record object is derived below.
+  const [activeRecordKey, setActiveRecordKey] = useState<string | null>(initialState.selectedKey);
   const [search, setSearch] = useState(initialState.search);
   const [filters, setFilters] = useState<Filters>(initialState.filters);
   const [sort, setSort] = useState<SortState>(initialState.sort);
@@ -54,12 +57,14 @@ export default function RecordList() {
     isInitializing.current = false;
   }, []);
 
-  // Sync URL whenever search, filters, or sort change (but not during initialization)
+  // Sync URL whenever search, filters, sort, or the open record change (but not
+  // during initialization). Opening/closing the modal pushes a history entry,
+  // so the browser Back button also closes the modal.
   useEffect(() => {
     if (!isInitializing.current) {
-      updateUrl(search, filters, sort);
+      updateUrl(search, filters, sort, activeRecordKey);
     }
-  }, [search, filters, sort]);
+  }, [search, filters, sort, activeRecordKey]);
 
   // Handle browser navigation (back/forward buttons)
   useEffect(() => {
@@ -69,17 +74,23 @@ export default function RecordList() {
       setSearch(urlState.search);
       setFilters(urlState.filters);
       setSort(urlState.sort);
+      setActiveRecordKey(urlState.selectedKey);
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Defer the search term so filtering a large list stays off the typing path:
+  // the input updates immediately while the (potentially expensive) re-filter
+  // runs at a lower priority.
+  const deferredSearch = useDeferredValue(search);
+
   // Memoize aggregated data
   const enrichedRecords = useMemo(() => enrichSearchable(records), [records]);
   const filteredRecords = useMemo(
-    () => filterRecords(enrichedRecords, filters, search),
-    [enrichedRecords, filters, search],
+    () => filterRecords(enrichedRecords, filters, deferredSearch),
+    [enrichedRecords, filters, deferredSearch],
   );
   const sortedRecords = useMemo(() => sortRecords(filteredRecords, sort), [filteredRecords, sort]);
   const facetCounts = useMemo(
@@ -91,6 +102,12 @@ export default function RecordList() {
     [records],
   );
   const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
+  // Resolve the open record from its key once records are loaded (so a
+  // deep-linked modal opens after the initial fetch resolves).
+  const activeRecord = useMemo(
+    () => records.find((r) => getRecordKey(r) === activeRecordKey) ?? null,
+    [records, activeRecordKey],
+  );
 
   // Set callbacks
   const handleSearchChange = useCallback((value: string) => {
@@ -194,13 +211,15 @@ export default function RecordList() {
         ) : (
           <RecordGrid
             records={sortedRecords}
-            onSelect={setActiveRecord}
+            onSelect={(record) => setActiveRecordKey(getRecordKey(record))}
             canReset={search.trim().length > 0 || activeFilterCount > 0}
             onReset={resetAll}
           />
         )}
       </div>
-      {activeRecord && <RecordModal record={activeRecord} onClose={() => setActiveRecord(null)} />}
+      {activeRecord && (
+        <RecordModal record={activeRecord} onClose={() => setActiveRecordKey(null)} />
+      )}
     </div>
   );
 }

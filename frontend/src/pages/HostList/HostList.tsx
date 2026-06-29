@@ -1,30 +1,40 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import HostGrid from '../../components/HostGrid/HostGrid';
 import HostModal from '../../components/HostModal/HostModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import { useHosts } from '../../hooks/useHosts';
 import { filterHosts } from '../../utils/host';
-import { HostSummary } from '../../types';
 import styles from './HostList.module.scss';
 
-// The host search is persisted in the URL under its own key so it doesn't
-// collide with the record list's `q`, and survives reloads / is shareable.
+// The host search and the open host are persisted in the URL under their own
+// keys (so they don't collide with the record list's `q`/`record`), which makes
+// them survive reloads and shareable.
 const HOST_SEARCH_PARAM = 'hq';
+const HOST_SELECTED_PARAM = 'host';
 
-function hostSearchFromUrl(): string {
+function paramFromUrl(key: string): string {
   if (typeof window === 'undefined') return '';
-  return new URLSearchParams(window.location.search).get(HOST_SEARCH_PARAM) || '';
+  return new URLSearchParams(window.location.search).get(key) || '';
 }
 
 export default function HostList() {
   const { hosts, loading, error, lastUpdated, status, refresh } = useHosts();
-  const [search, setSearch] = useState(hostSearchFromUrl);
-  const [activeHost, setActiveHost] = useState<HostSummary | null>(null);
+  const [search, setSearch] = useState(() => paramFromUrl(HOST_SEARCH_PARAM));
+  const [activeHostKey, setActiveHostKey] = useState<string | null>(
+    () => paramFromUrl(HOST_SELECTED_PARAM) || null,
+  );
 
-  const filteredHosts = useMemo(() => filterHosts(hosts, search), [hosts, search]);
+  const deferredSearch = useDeferredValue(search);
+  const filteredHosts = useMemo(() => filterHosts(hosts, deferredSearch), [hosts, deferredSearch]);
+  // Resolve the open host from its key once hosts are loaded (so a deep-linked
+  // modal opens after the initial fetch resolves).
+  const activeHost = useMemo(
+    () => hosts.find((h) => h.hostname === activeHostKey) ?? null,
+    [hosts, activeHostKey],
+  );
 
-  // Reflect the search in the URL (replace, not push, so typing doesn't spam
+  // Reflect search + open host in the URL (replace, so typing doesn't spam
   // history), preserving any other params such as `view`.
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -34,17 +44,25 @@ export default function HostList() {
     } else {
       params.delete(HOST_SEARCH_PARAM);
     }
+    if (activeHostKey) {
+      params.set(HOST_SELECTED_PARAM, activeHostKey);
+    } else {
+      params.delete(HOST_SELECTED_PARAM);
+    }
     const qs = params.toString();
     window.history.replaceState(
       null,
       '',
       qs ? `${window.location.pathname}?${qs}` : window.location.pathname,
     );
-  }, [search]);
+  }, [search, activeHostKey]);
 
-  // Keep search in sync with back/forward navigation.
+  // Keep state in sync with back/forward navigation.
   useEffect(() => {
-    const onPopState = () => setSearch(hostSearchFromUrl());
+    const onPopState = () => {
+      setSearch(paramFromUrl(HOST_SEARCH_PARAM));
+      setActiveHostKey(paramFromUrl(HOST_SELECTED_PARAM) || null);
+    };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
@@ -81,12 +99,12 @@ export default function HostList() {
       ) : (
         <HostGrid
           hosts={filteredHosts}
-          onSelect={setActiveHost}
+          onSelect={(host) => setActiveHostKey(host.hostname)}
           canReset={search.trim().length > 0}
           onReset={() => setSearch('')}
         />
       )}
-      {activeHost && <HostModal host={activeHost} onClose={() => setActiveHost(null)} />}
+      {activeHost && <HostModal host={activeHost} onClose={() => setActiveHostKey(null)} />}
     </div>
   );
 }

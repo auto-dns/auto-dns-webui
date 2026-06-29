@@ -9,6 +9,10 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   cursor: pointer;
+  // Skip rendering work for off-screen cards so long lists stay smooth; the
+  // intrinsic size keeps the scrollbar accurate before a card is painted.
+  content-visibility: auto;
+  contain-intrinsic-size: auto 8rem;
   transition:
     box-shadow var(--transition-base),
     border-color var(--transition-base),

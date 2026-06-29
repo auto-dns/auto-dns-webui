@@ -34,6 +34,14 @@
   outline: none;
   animation: dialog-in var(--ease-emphasized);
 
+  // The dialog receives focus on open for screen readers, but it isn't an
+  // interactive control, so suppress the global focus-visible ring on the
+  // container itself (inner buttons keep theirs).
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
   @include respond-max($breakpoint-md) {
     max-width: 100%;
     max-height: 88vh;

@@ -39,6 +39,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   state, so an empty result from over-filtering is easy to recognize and undo.
 - The Hosts view search is now persisted in the URL (under `hq`), matching the
   records view, so it survives reloads and is shareable.
+- The open record/host detail is now reflected in the URL (`record` / `host`),
+  so a specific detail view is shareable and reopens on reload; on the records
+  view the browser Back button also closes the modal.
+- Large-list performance: filtering is deferred off the typing path
+  (`useDeferredValue`) so the search box stays responsive, and off-screen cards
+  skip rendering via CSS `content-visibility`. (For very large sets — tens of
+  thousands — full list virtualization would still be the next step.)
 
 ### Fixed
 - Free-text filters (Record Name, Container Name, Container ID) are now matched
