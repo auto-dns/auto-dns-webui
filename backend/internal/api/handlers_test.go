@@ -22,8 +22,11 @@ type mockRegistry struct {
 }
 
 func (m *mockRegistry) List(ctx context.Context) ([]*dns.Record, error) { return m.records, m.err }
-func (m *mockRegistry) Ping(ctx context.Context) error                  { return m.err }
-func (m *mockRegistry) Close() error                                    { return nil }
+func (m *mockRegistry) Watch(ctx context.Context) (<-chan struct{}, error) {
+	return nil, m.err
+}
+func (m *mockRegistry) Ping(ctx context.Context) error { return m.err }
+func (m *mockRegistry) Close() error                   { return nil }
 
 func TestRecords_Success(t *testing.T) {
 	reg := &mockRegistry{records: []*dns.Record{

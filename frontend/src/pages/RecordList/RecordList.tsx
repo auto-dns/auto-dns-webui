@@ -1,18 +1,19 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { Filters, RecordEntry, SortState } from '../../types';
+import { Filters, SortState } from '../../types';
 import { deriveFilterOptions } from '../../utils/filters';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import FilterSortDrawer from '../../components/FilterSortDrawer/FilterSortDrawer';
 import RecordGrid from '../../components/RecordGrid/RecordGrid';
+import StatusBar from '../../components/StatusBar/StatusBar';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
 import { filterRecords, getFacetCounts } from '../../utils/filters';
 import { parseFromUrl, updateUrl } from '../../utils/url';
 import { useSidebarState } from '../../hooks/useSidebarState';
+import { useRecords } from '../../hooks/useRecords';
 import styles from './RecordList.module.scss';
 import classNames from 'classnames';
 import { PanelLeft } from 'lucide-react';
-
 
 export default function RecordList() {
   // Initialize state from URL on mount
@@ -37,53 +38,15 @@ export default function RecordList() {
   }, []);
 
   // Declare state
-  const [records, setRecords] = useState<RecordEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { records, loading, error, lastUpdated, status, refresh } = useRecords();
   const [showSidebar, setShowSidebar] = useSidebarState();
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState(initialState.search);
   const [filters, setFilters] = useState<Filters>(initialState.filters);
   const [sort, setSort] = useState<SortState>(initialState.sort);
-  const [scrolled, setScrolled] = useState(false);
-  
+
   // Track if we should update URL (to avoid infinite loops during initialization)
   const isInitializing = useRef(true);
-
-  // Fetch records (retryable)
-  const loadRecords = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    fetch('/api/records')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Request failed: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      })
-      .then((data: RecordEntry[]) => {
-        setRecords(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch records:', err);
-        setError('Failed to load DNS records. Please try again.');
-        setLoading(false);
-      });
-  }, []);
-
-  // Use effects
-  useEffect(() => {
-    loadRecords();
-  }, [loadRecords]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Mark initialization as complete after first render
   useEffect(() => {
@@ -113,14 +76,23 @@ export default function RecordList() {
 
   // Memoize aggregated data
   const enrichedRecords = useMemo(() => enrichSearchable(records), [records]);
-  const filteredRecords = useMemo(() => filterRecords(enrichedRecords, filters, search), [enrichedRecords, filters, search]);
+  const filteredRecords = useMemo(
+    () => filterRecords(enrichedRecords, filters, search),
+    [enrichedRecords, filters, search],
+  );
   const sortedRecords = useMemo(() => sortRecords(filteredRecords, sort), [filteredRecords, sort]);
-  const facetCounts = useMemo(() => getFacetCounts(filteredRecords, filters), [filteredRecords, filters]);
-  const {recordTypes, recordValues, hostnames, forceValues} = useMemo(() => deriveFilterOptions(records), [records]);
+  const facetCounts = useMemo(
+    () => getFacetCounts(filteredRecords, filters),
+    [filteredRecords, filters],
+  );
+  const { recordTypes, recordValues, hostnames, forceValues } = useMemo(
+    () => deriveFilterOptions(records),
+    [records],
+  );
 
   // Set callbacks
   const toggleExpand = useCallback((key: string) => {
-    setExpandedKeys(prev => {
+    setExpandedKeys((prev) => {
       const updated = new Set(prev);
       updated.has(key) ? updated.delete(key) : updated.add(key);
       return updated;
@@ -164,8 +136,8 @@ export default function RecordList() {
             {!showSidebar && (
               <button
                 className={styles.hamburger}
-                onClick={() => setShowSidebar(s => !s)}
-                aria-label='Toggle filters'
+                onClick={() => setShowSidebar((s) => !s)}
+                aria-label="Toggle filters"
               >
                 <PanelLeft size={20} />
               </button>
@@ -176,14 +148,17 @@ export default function RecordList() {
           </div>
         </header>
         <h2 className={styles.pageTitle}>DNS Records</h2>
+        {!loading && !error && (
+          <StatusBar status={status} lastUpdated={lastUpdated} onRefresh={refresh} />
+        )}
         {loading ? (
-          <div className={styles.statusMessage} role='status' aria-live='polite'>
+          <div className={styles.statusMessage} role="status" aria-live="polite">
             Loading records…
           </div>
         ) : error ? (
-          <div className={styles.statusMessage} role='alert'>
+          <div className={styles.statusMessage} role="alert">
             <p>{error}</p>
-            <button className={styles.retryButton} onClick={loadRecords}>
+            <button className={styles.retryButton} onClick={refresh}>
               Retry
             </button>
           </div>

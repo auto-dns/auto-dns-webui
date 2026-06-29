@@ -23,6 +23,7 @@ type Metrics struct {
 	httpDuration   *prometheus.HistogramVec
 	etcdListErrors prometheus.Counter
 	recordCount    prometheus.Gauge
+	streamClients  prometheus.Gauge
 	mcpToolCalls   *prometheus.CounterVec
 }
 
@@ -49,6 +50,10 @@ func New() *Metrics {
 			Name: "auto_dns_webui_dns_records",
 			Help: "Number of DNS records returned by the most recent successful etcd list.",
 		}),
+		streamClients: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "auto_dns_webui_stream_clients",
+			Help: "Number of currently connected record-stream (SSE) clients.",
+		}),
 		mcpToolCalls: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "auto_dns_webui_mcp_tool_calls_total",
 			Help: "Total number of MCP tool invocations, by tool name.",
@@ -59,6 +64,7 @@ func New() *Metrics {
 		m.httpDuration,
 		m.etcdListErrors,
 		m.recordCount,
+		m.streamClients,
 		m.mcpToolCalls,
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
@@ -90,6 +96,12 @@ func (m *Metrics) SetRecordCount(n int) { m.recordCount.Set(float64(n)) }
 
 // RecordEtcdListError increments the etcd list-error counter.
 func (m *Metrics) RecordEtcdListError() { m.etcdListErrors.Inc() }
+
+// IncStreamClients records a newly connected record-stream client.
+func (m *Metrics) IncStreamClients() { m.streamClients.Inc() }
+
+// DecStreamClients records a disconnected record-stream client.
+func (m *Metrics) DecStreamClients() { m.streamClients.Dec() }
 
 // RecordMCPToolCall increments the call counter for the named MCP tool.
 func (m *Metrics) RecordMCPToolCall(tool string) { m.mcpToolCalls.WithLabelValues(tool).Inc() }

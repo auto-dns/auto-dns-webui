@@ -3,6 +3,7 @@ package registry
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/rs/zerolog"
 	mvccpb "go.etcd.io/etcd/api/v3/mvccpb"
@@ -11,13 +12,19 @@ import (
 	"github.com/auto-dns/auto-dns-webui/internal/config"
 )
 
-// mockEtcdClient implements the etcdClient interface with an overridable Get.
+// mockEtcdClient implements the etcdClient interface with an overridable Get
+// and Watch.
 type mockEtcdClient struct {
-	getFunc func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error)
+	getFunc   func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error)
+	watchFunc func(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan
 }
 
 func (m *mockEtcdClient) Get(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
 	return m.getFunc(ctx, key, opts...)
+}
+
+func (m *mockEtcdClient) Watch(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan {
+	return m.watchFunc(ctx, key, opts...)
 }
 
 func (m *mockEtcdClient) Close() error { return nil }
@@ -114,6 +121,85 @@ func TestList(t *testing.T) {
 		}
 		if _, err := newTestRegistry(client).List(context.Background()); err == nil {
 			t.Fatal("expected error to propagate from client.Get")
+		}
+	})
+}
+
+func TestWatch(t *testing.T) {
+	t.Run("emits a coalesced signal on change events and closes when the watch ends", func(t *testing.T) {
+		wch := make(chan clientv3.WatchResponse, 1)
+		client := &mockEtcdClient{
+			watchFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan {
+				return wch
+			},
+		}
+		out, err := newTestRegistry(client).Watch(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		wch <- clientv3.WatchResponse{Events: []*clientv3.Event{{}}}
+		select {
+		case _, ok := <-out:
+			if !ok {
+				t.Fatal("channel closed; expected a change signal")
+			}
+		case <-time.After(time.Second):
+			t.Fatal("timed out waiting for change signal")
+		}
+
+		// Closing the upstream watch should close the returned channel.
+		close(wch)
+		select {
+		case _, ok := <-out:
+			if ok {
+				t.Fatal("expected channel to be closed after watch ended")
+			}
+		case <-time.After(time.Second):
+			t.Fatal("timed out waiting for channel close")
+		}
+	})
+
+	t.Run("ignores responses with no events", func(t *testing.T) {
+		wch := make(chan clientv3.WatchResponse, 1)
+		client := &mockEtcdClient{
+			watchFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan {
+				return wch
+			},
+		}
+		out, err := newTestRegistry(client).Watch(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		wch <- clientv3.WatchResponse{} // no events
+		select {
+		case <-out:
+			t.Fatal("did not expect a signal for an empty watch response")
+		case <-time.After(50 * time.Millisecond):
+		}
+	})
+
+	t.Run("stops when context is cancelled", func(t *testing.T) {
+		wch := make(chan clientv3.WatchResponse)
+		client := &mockEtcdClient{
+			watchFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) clientv3.WatchChan {
+				return wch
+			},
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		out, err := newTestRegistry(client).Watch(ctx)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		cancel()
+		select {
+		case _, ok := <-out:
+			if ok {
+				t.Fatal("expected channel to close after context cancel")
+			}
+		case <-time.After(time.Second):
+			t.Fatal("timed out waiting for channel close after cancel")
 		}
 	})
 }
