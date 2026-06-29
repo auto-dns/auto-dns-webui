@@ -32,6 +32,17 @@ describe('serializeToUrl', () => {
     const qs = new URLSearchParams(serializeToUrl('', emptyFilters(), sort));
     expect(qs.get('sort')).toBe('created:desc');
   });
+
+  it('includes the selected record key when provided', () => {
+    const qs = new URLSearchParams(
+      serializeToUrl('', emptyFilters(), DEFAULT_SORT, 'app.example.com|A|10.0.0.1|abc'),
+    );
+    expect(qs.get('record')).toBe('app.example.com|A|10.0.0.1|abc');
+  });
+
+  it('omits the selected record key when null', () => {
+    expect(serializeToUrl('', emptyFilters(), DEFAULT_SORT, null)).toBe('');
+  });
 });
 
 describe('parseFromUrl', () => {
@@ -50,6 +61,16 @@ describe('parseFromUrl', () => {
 
   it('returns the default sort when the sort param is absent', () => {
     expect(parseFromUrl(new URLSearchParams('')).sort).toEqual(DEFAULT_SORT);
+  });
+
+  it('round-trips the selected record key', () => {
+    const key = 'app.example.com|A|10.0.0.1|abc';
+    const serialized = serializeToUrl('', emptyFilters(), DEFAULT_SORT, key);
+    expect(parseFromUrl(new URLSearchParams(serialized)).selectedKey).toBe(key);
+  });
+
+  it('returns a null selected key when the param is absent', () => {
+    expect(parseFromUrl(new URLSearchParams('')).selectedKey).toBeNull();
   });
 
   it('falls back to the default sort on an invalid sort key', () => {

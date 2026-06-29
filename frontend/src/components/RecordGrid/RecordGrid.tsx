@@ -5,33 +5,32 @@ import styles from './RecordGrid.module.scss';
 
 interface RecordGridProps {
   records: RecordEntry[];
-  expandedKeys: Set<string>;
-  toggleExpand: (key: string) => void;
+  onSelect: (record: RecordEntry) => void;
+  // When true, the empty state offers a reset action (a search/filter is the
+  // likely reason nothing matched).
+  canReset?: boolean;
+  onReset?: () => void;
 }
 
-export default function RecordGrid({ records, expandedKeys, toggleExpand }: RecordGridProps) {
+export default function RecordGrid({ records, onSelect, canReset, onReset }: RecordGridProps) {
   if (records.length === 0) {
     return (
       <div className={styles.emptyState}>
         <p>No records match your filters or search.</p>
+        {canReset && onReset && (
+          <button type="button" className={styles.resetButton} onClick={onReset}>
+            Clear search & filters
+          </button>
+        )}
       </div>
     );
   }
-  
+
   return (
     <div className={styles.grid}>
-      {records.map((record) => {
-        const key = getRecordKey(record);
-        const isExpanded = expandedKeys.has(key);
-        return (
-          <RecordCard
-            key={key}
-            record={record}
-            isExpanded={isExpanded}
-            toggleExpand={toggleExpand}
-          />
-        );
-      })}
+      {records.map((record) => (
+        <RecordCard key={getRecordKey(record)} record={record} onSelect={onSelect} />
+      ))}
     </div>
   );
 }

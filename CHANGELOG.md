@@ -10,12 +10,57 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > **git tag is the authoritative version** for a release — the GHCR image and
 > GitHub Release are built from it. `frontend/package.json`'s `version` tracks the
 > in-development line and is not the release source of truth. The active
-> development line is `0.9.x`. As a **downstream consumer** of the
+> development line is `0.10.x`. As a **downstream consumer** of the
 > [`docker-coredns-sync`](https://github.com/auto-dns/docker-coredns-sync) etcd
 > record schema, releases note the minimum compatible producer version when the
 > consumed schema is involved (see `CONTRIBUTING.md`).
 
 ## [Unreleased]
+
+## [0.10.0] - 2026-06-29
+
+### Changed
+- UI/UX polish pass across the SPA. Introduced a design-token foundation
+  (layered surface, text, accent, status and categorical-tag colors; spacing and
+  type scales; elevation, radii and motion tokens) in `frontend/src/styles` and
+  restyled every component against it for a more cohesive, polished look in both
+  light and dark themes and at mobile and desktop widths. DNS record types now
+  get color-coded badges and record values/IDs render in a monospace font for
+  faster scanning. Refreshed the app shell (brand + tabs top bar), search field,
+  status bar, filter/sort drawer and facet chips. No API, config, or behavior
+  changes — this is purely presentational.
+- Record and host details now open in a modal dialog (a bottom sheet on mobile)
+  instead of expanding the card in place, so opening details no longer reflows
+  the surrounding grid. Cards show an at-a-glance summary and are keyboard
+  operable; the dialog closes on Escape or backdrop click, traps Tab focus while
+  open, and restores focus on close.
+- Result count in the status bar ("N of M records" / "N of M hosts") so it's
+  clear how much the current search and filters matched.
+- "Filters applied" badge on the toolbar filter button and a "Clear all" action
+  in the filter drawer, plus a "Clear search & filters" action in the empty
+  state, so an empty result from over-filtering is easy to recognize and undo.
+- The Hosts view search is now persisted in the URL (under `hq`), matching the
+  records view, so it survives reloads and is shareable.
+- The open record/host detail is now reflected in the URL (`record` / `host`),
+  so a specific detail view is shareable and reopens on reload. View state
+  (search, filters, sort, the open item) is written with `replaceState`, so it
+  no longer adds a browser-history entry per keystroke/filter; Back/Forward move
+  between actual navigations rather than through every interaction.
+- Large-list performance: filtering is deferred off the typing path
+  (`useDeferredValue`) so the search box stays responsive, and off-screen cards
+  skip rendering via CSS `content-visibility`. (For very large sets — tens of
+  thousands — full list virtualization would still be the next step.)
+
+### Fixed
+- Free-text filters (Record Name, Container Name, Container ID) are now matched
+  case-insensitively (and ignore whitespace-only input), consistent with the
+  global search — e.g. typing `App` matches `app.example.com`.
+- The detail modal now traps Tab focus within the dialog (previously focus could
+  escape to the page behind it) and no longer re-steals focus or re-runs its
+  scroll lock when the list refreshes in the background while it's open.
+- Switching tabs / typing no longer corrupts browser history, and closing the
+  modal then pressing Back no longer re-opens it (both were caused by writing
+  view state with `pushState`).
 
 ## [0.9.0] - 2026-06-29
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Filters, RecordEntry } from '../types';
-import { deriveFilterOptions, filterRecords, getFacetCounts } from './filters';
+import { countActiveFilters, deriveFilterOptions, filterRecords, getFacetCounts } from './filters';
 import { enrichSearchable } from './record';
 
 function rec(
@@ -12,7 +12,13 @@ function rec(
 ): RecordEntry {
   return {
     dnsRecord: { name, type, value },
-    metadata: { containerId: 'id-' + name, containerName: name, created: '2024-01-01T00:00:00Z', hostname, force },
+    metadata: {
+      containerId: 'id-' + name,
+      containerName: name,
+      created: '2024-01-01T00:00:00Z',
+      hostname,
+      force,
+    },
   };
 }
 
@@ -71,7 +77,32 @@ describe('filterRecords', () => {
 
   it('combines filters with AND semantics', () => {
     const f = { ...emptyFilters(), hostname: ['alpha'], type: ['CNAME'] };
-    expect(filterRecords(enriched, f, '').map((r) => r.dnsRecord.name)).toEqual(['www.example.com']);
+    expect(filterRecords(enriched, f, '').map((r) => r.dnsRecord.name)).toEqual([
+      'www.example.com',
+    ]);
+  });
+
+  it('matches the name filter case-insensitively', () => {
+    const f = { ...emptyFilters(), name: 'APP.EXAMPLE' };
+    expect(filterRecords(enriched, f, '').map((r) => r.dnsRecord.name)).toEqual([
+      'app.example.com',
+    ]);
+  });
+});
+
+describe('countActiveFilters', () => {
+  it('returns 0 when no filters are set', () => {
+    expect(countActiveFilters(emptyFilters())).toBe(0);
+  });
+
+  it('counts text and multi-select filters', () => {
+    const f = { ...emptyFilters(), name: 'app', type: ['A', 'AAAA'], hostname: ['alpha'] };
+    expect(countActiveFilters(f)).toBe(4);
+  });
+
+  it('ignores blank/whitespace-only text filters', () => {
+    const f = { ...emptyFilters(), name: '   ', containerId: '' };
+    expect(countActiveFilters(f)).toBe(0);
   });
 });
 

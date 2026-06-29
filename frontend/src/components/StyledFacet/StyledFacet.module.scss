@@ -3,48 +3,53 @@
 .group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   .label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-color);
+    font-weight: var(--weight-semibold);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
   }
 
   .facetContainer {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
 
     .facet {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.4rem 0.9rem;
-      color: var(--text-color);
-      background-color: var(--bg-color);
-      border: 1px solid var(--card-border);
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 500;
+      gap: var(--space-2);
+      padding: 0.3rem 0.4rem 0.3rem 0.75rem;
+      color: var(--text);
+      background-color: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
       cursor: pointer;
-      transition: all 0.2s ease;
-      
+      transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+
       &:hover {
-        background-color: var(--chip-bg-hover, var(--card-border));
+        border-color: var(--border-strong);
+        background-color: var(--surface-3);
       }
 
       &.selected {
-        background-color: var(--accent-bg);
+        background-color: var(--accent);
+        border-color: var(--accent);
         color: var(--accent-text);
 
         .optionLabel {
-          color: var(--accent-text)
+          color: var(--accent-text);
         }
 
         .count {
-          background-color: var(--count-bg-selected);
-          color: var(--count-text);
+          background-color: rgba(255, 255, 255, 0.22);
+          color: var(--accent-text);
         }
       }
 
@@ -53,12 +58,16 @@
       }
 
       .count {
-        background-color: var(--bg-muted);
-        color: var(--count-text);
-        padding: 0 0.4em;
-        font-size: 0.65rem;
-        font-weight: 500;
-        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.25rem;
+        padding: 0 0.35em;
+        background-color: var(--surface-1);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-semibold);
+        border-radius: var(--radius-full);
       }
     }
   }
