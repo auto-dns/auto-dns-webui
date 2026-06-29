@@ -112,6 +112,30 @@ func (er *EtcdRegistry) List(ctx context.Context) ([]*dns.Record, error) {
 	return records, nil
 }
 
+// ListHeartbeats returns the set of hostnames currently publishing a
+// lease-backed liveness heartbeat. docker-coredns-sync writes one key per host
+// at "{heartbeat_prefix}/{hostname}" outside the DNS-record prefix (so CoreDNS
+// never serves it) and keeps it alive with a lease while the node runs; the key
+// disappears automatically when the node stops renewing. A hostname present in
+// the returned set is therefore considered online. The read is keys-only — the
+// hostname is taken from the key suffix and the value is not needed.
+func (er *EtcdRegistry) ListHeartbeats(ctx context.Context) (map[string]bool, error) {
+	prefix := er.cfg.HeartbeatPrefix
+	resp, err := er.client.Get(ctx, prefix, clientv3.WithPrefix(), clientv3.WithKeysOnly())
+	if err != nil {
+		return nil, err
+	}
+	trim := strings.TrimSuffix(prefix, "/") + "/"
+	online := make(map[string]bool, len(resp.Kvs))
+	for _, kv := range resp.Kvs {
+		hostname := strings.TrimPrefix(string(kv.Key), trim)
+		if hostname != "" {
+			online[hostname] = true
+		}
+	}
+	return online, nil
+}
+
 // Watch establishes an etcd watch on the configured prefix and returns a
 // channel that emits a value whenever the record set under that prefix changes.
 // Notifications are coalesced: the channel has a buffer of one and a pending

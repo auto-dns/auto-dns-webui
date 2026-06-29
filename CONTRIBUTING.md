@@ -70,6 +70,10 @@ milestone a MAJOR).
 
 When you file or triage an issue, assign it to the milestone (version) it targets.
 
+The [`TODO.md`](./TODO.md) roadmap is a human-readable index of what's shipped,
+in flight, and on the "later" list — it points at the GitHub issues/milestones,
+which remain the source of truth. Update it when the shape of the backlog changes.
+
 ## Branches
 
 `main` is the default, stable branch. We use a two-level branching model:
@@ -140,6 +144,7 @@ Labels in use:
 | `test` | Test coverage / test infrastructure |
 | `security` | Vulnerability remediation or hardening |
 | `tech-debt` | Cleanup, dead code, refactors with no behavior change |
+| `deferred` | Acknowledged but intentionally not scheduled yet (not declined — see `TODO.md`'s "Later" list) |
 | `awaiting-release` | Merged to a milestone branch, not yet released (managed by automation) |
 
 Group issues by their target release using the **milestone (version)** they
