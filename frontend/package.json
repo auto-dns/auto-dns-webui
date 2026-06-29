@@ -23,7 +23,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.7.0",
-    "prettier": "^3.8.5",
+    "prettier": "^3.9.3",
     "sass-embedded": "^1.100.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.0",
@@ -35,7 +35,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "classnames": "^2.5.1",
-    "lucide-react": "^1.21.0",
+    "lucide-react": "^1.22.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   }
