@@ -17,6 +17,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Hosts view. A new **Hosts** tab summarizes each `docker-coredns-sync` node that
+  publishes records: its online/offline status plus per-host record count, a
+  per-type breakdown, the contributing containers, and the last-published time.
+  Status is derived from the producer's lease-backed heartbeat keys, which the
+  backend reads under a new configurable prefix
+  (`etcd.heartbeat_prefix` / `AUTO_DNS_WEBUI_ETCD_HEARTBEAT_PREFIX`, default
+  `/docker-coredns-sync/heartbeat`); per-host stats are derived from the existing
+  DNS records. Served by a new read-only `GET /api/hosts` endpoint and surfaced
+  in the UI via lightweight Records/Hosts tabs (active view reflected in the URL
+  as `?view=hosts`, no router dependency). The heartbeat read is best-effort — if
+  it fails, hosts are still returned (marked offline) (#9).
+
+### Changed
+- Replaced the stale `IMPLEMENTATION.md` planning doc with a maintained
+  [`TODO.md`](./TODO.md) roadmap that indexes the live GitHub issues/milestones
+  and captures longer-term ideas, cross-linked from the README and
+  `CONTRIBUTING.md`. Added a `deferred` issue label for acknowledged-but-unscheduled
+  work (#25).
+
+### Notes
+- Additive to the public contract: a new `GET /api/hosts` endpoint and a new
+  optional `etcd.heartbeat_prefix` config key (defaulted), with no change to
+  existing `/api/*` routes, config, or MCP tool schemas.
+- The Hosts view consumes the `docker-coredns-sync` heartbeat keys for liveness.
+  Against an older producer that doesn't publish them, the view degrades
+  gracefully — hosts derived from records are still listed, shown as offline — so
+  there is no hard minimum producer bump, but accurate online status requires a
+  producer version that publishes lease-backed heartbeats.
+
 ## [0.8.0] - 2026-06-29
 
 ### Added

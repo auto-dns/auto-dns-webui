@@ -7,7 +7,7 @@ import "testing"
 func validConfig() Config {
 	return Config{
 		App:  AppConfig{Hostname: "dns1"},
-		Etcd: EtcdConfig{Host: "localhost", Port: 2379, PathPrefix: "/skydns"},
+		Etcd: EtcdConfig{Host: "localhost", Port: 2379, PathPrefix: "/skydns", HeartbeatPrefix: "/docker-coredns-sync/heartbeat"},
 		Log:  LoggingConfig{Level: "INFO"},
 		MCP:  MCPConfig{Enabled: false, Port: 0},
 		Server: ServerConfig{
@@ -56,6 +56,8 @@ func TestValidate_Errors(t *testing.T) {
 		{"etcd port zero", func(c *Config) { c.Etcd.Port = 0 }},
 		{"etcd port too high", func(c *Config) { c.Etcd.Port = 70000 }},
 		{"empty path prefix", func(c *Config) { c.Etcd.PathPrefix = "" }},
+		{"empty heartbeat prefix", func(c *Config) { c.Etcd.HeartbeatPrefix = "" }},
+		{"overlapping prefixes", func(c *Config) { c.Etcd.HeartbeatPrefix = "/skydns/heartbeat" }},
 		{"invalid log level", func(c *Config) { c.Log.Level = "VERBOSE" }},
 		{"empty proxy hostname", func(c *Config) { c.Server.Proxy.Hostname = "" }},
 		{"proxy port zero", func(c *Config) { c.Server.Proxy.Port = 0 }},

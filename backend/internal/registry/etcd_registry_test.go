@@ -30,7 +30,7 @@ func (m *mockEtcdClient) Watch(ctx context.Context, key string, opts ...clientv3
 func (m *mockEtcdClient) Close() error { return nil }
 
 func newTestRegistry(client etcdClient) *EtcdRegistry {
-	return NewEtcdRegistry(client, &config.EtcdConfig{PathPrefix: "/skydns"}, zerolog.Nop())
+	return NewEtcdRegistry(client, &config.EtcdConfig{PathPrefix: "/skydns", HeartbeatPrefix: "/docker-coredns-sync/heartbeat"}, zerolog.Nop())
 }
 
 func TestParseEtcdValue(t *testing.T) {
@@ -120,6 +120,57 @@ func TestList(t *testing.T) {
 			},
 		}
 		if _, err := newTestRegistry(client).List(context.Background()); err == nil {
+			t.Fatal("expected error to propagate from client.Get")
+		}
+	})
+}
+
+func TestListHeartbeats(t *testing.T) {
+	t.Run("extracts hostnames from heartbeat keys", func(t *testing.T) {
+		var gotKey string
+		client := &mockEtcdClient{
+			getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
+				gotKey = key
+				return &clientv3.GetResponse{Kvs: []*mvccpb.KeyValue{
+					{Key: []byte("/docker-coredns-sync/heartbeat/h1")},
+					{Key: []byte("/docker-coredns-sync/heartbeat/h2")},
+				}}, nil
+			},
+		}
+		online, err := newTestRegistry(client).ListHeartbeats(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if gotKey != "/docker-coredns-sync/heartbeat" {
+			t.Errorf("queried prefix = %q, want /docker-coredns-sync/heartbeat", gotKey)
+		}
+		if len(online) != 2 || !online["h1"] || !online["h2"] {
+			t.Errorf("online = %v, want {h1, h2}", online)
+		}
+	})
+
+	t.Run("empty when no hosts are heartbeating", func(t *testing.T) {
+		client := &mockEtcdClient{
+			getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
+				return &clientv3.GetResponse{}, nil
+			},
+		}
+		online, err := newTestRegistry(client).ListHeartbeats(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(online) != 0 {
+			t.Errorf("online = %v, want empty", online)
+		}
+	})
+
+	t.Run("propagates get error", func(t *testing.T) {
+		client := &mockEtcdClient{
+			getFunc: func(ctx context.Context, key string, opts ...clientv3.OpOption) (*clientv3.GetResponse, error) {
+				return nil, context.DeadlineExceeded
+			},
+		}
+		if _, err := newTestRegistry(client).ListHeartbeats(context.Background()); err == nil {
 			t.Fatal("expected error to propagate from client.Get")
 		}
 	})
