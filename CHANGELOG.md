@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-29
+
 ### Added
 - Live record refresh. The record list now stays current without a manual page
   reload: the backend exposes a Server-Sent Events endpoint
