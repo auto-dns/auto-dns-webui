@@ -11,6 +11,15 @@
   color: var(--text-muted);
 }
 
+.count {
+  color: var(--text-muted);
+
+  strong {
+    color: var(--text-strong);
+    font-weight: var(--weight-semibold);
+  }
+}
+
 .indicator {
   display: inline-flex;
   align-items: center;

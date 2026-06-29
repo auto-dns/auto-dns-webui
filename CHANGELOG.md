@@ -30,7 +30,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Record and host details now open in a modal dialog (a bottom sheet on mobile)
   instead of expanding the card in place, so opening details no longer reflows
   the surrounding grid. Cards show an at-a-glance summary and are keyboard
-  operable; the dialog closes on Escape or backdrop click and restores focus.
+  operable; the dialog closes on Escape or backdrop click, traps Tab focus while
+  open, and restores focus on close.
+- Result count in the status bar ("N of M records" / "N of M hosts") so it's
+  clear how much the current search and filters matched.
+- "Filters applied" badge on the toolbar filter button and a "Clear all" action
+  in the filter drawer, plus a "Clear search & filters" action in the empty
+  state, so an empty result from over-filtering is easy to recognize and undo.
+- The Hosts view search is now persisted in the URL (under `hq`), matching the
+  records view, so it survives reloads and is shareable.
+
+### Fixed
+- Free-text filters (Record Name, Container Name, Container ID) are now matched
+  case-insensitively, consistent with the global search — e.g. typing `App`
+  matches `app.example.com`.
 
 ## [0.9.0] - 2026-06-29
 

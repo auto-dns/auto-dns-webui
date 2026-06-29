@@ -10,11 +10,31 @@ function getUniqueSorted<T>(items: T[]): T[] {
 
 export function deriveFilterOptions(records: RecordEntry[]) {
   return {
-    recordTypes: getUniqueSorted(records.map(r => r.dnsRecord.type)),
-    recordValues: getUniqueSorted(records.map(r => r.dnsRecord.value)),
-    hostnames: getUniqueSorted(records.map(r => r.metadata.hostname)),
-    forceValues: getUniqueSorted(records.map(r => r.metadata.force)),
+    recordTypes: getUniqueSorted(records.map((r) => r.dnsRecord.type)),
+    recordValues: getUniqueSorted(records.map((r) => r.dnsRecord.value)),
+    hostnames: getUniqueSorted(records.map((r) => r.metadata.hostname)),
+    forceValues: getUniqueSorted(records.map((r) => r.metadata.force)),
   };
+}
+
+// Case-insensitive substring match.
+function includesCI(haystack: string, needle: string): boolean {
+  return haystack.toLowerCase().includes(needle.toLowerCase());
+}
+
+// Number of active filter constraints (used for the "filters applied" badge and
+// to decide whether an empty result is due to filtering). Search is tracked
+// separately since it's always visible in the search bar.
+export function countActiveFilters(filters: Filters): number {
+  return (
+    (filters.name.trim() ? 1 : 0) +
+    (filters.containerId.trim() ? 1 : 0) +
+    (filters.containerName.trim() ? 1 : 0) +
+    filters.type.length +
+    filters.value.length +
+    filters.hostname.length +
+    filters.force.length
+  );
 }
 
 export function filterRecords(records: EnrichedRecordEntry[], filters: Filters, search: string) {
@@ -22,12 +42,17 @@ export function filterRecords(records: EnrichedRecordEntry[], filters: Filters, 
     const searchText = search.trim().toLowerCase();
     const matchesSearch = r.searchable.includes(searchText);
 
-    const matchesName = !filters.name || r.dnsRecord.name.includes(filters.name);
+    // Free-text field filters are case-insensitive to match the global search
+    // (typing "App" should find "app.example.com").
+    const matchesName = !filters.name || includesCI(r.dnsRecord.name, filters.name);
     const matchesType = !filters.type.length || filters.type.includes(r.dnsRecord.type);
     const matchesValue = !filters.value.length || filters.value.includes(r.dnsRecord.value);
-    const matchesContainerId = !filters.containerId || r.metadata.containerId.includes(filters.containerId);
-    const matchesContainerName = !filters.containerName || r.metadata.containerName.includes(filters.containerName);
-    const matchesHostname = !filters.hostname.length || filters.hostname.includes(r.metadata.hostname);
+    const matchesContainerId =
+      !filters.containerId || includesCI(r.metadata.containerId, filters.containerId);
+    const matchesContainerName =
+      !filters.containerName || includesCI(r.metadata.containerName, filters.containerName);
+    const matchesHostname =
+      !filters.hostname.length || filters.hostname.includes(r.metadata.hostname);
     const matchesForce = !filters.force.length || filters.force.includes(r.metadata.force);
 
     return (

@@ -8,7 +8,7 @@ import RecordModal from '../../components/RecordModal/RecordModal';
 import StatusBar from '../../components/StatusBar/StatusBar';
 import { SORT_KEYS, sortRecords } from '../../utils/sort';
 import { enrichSearchable } from '../../utils/record';
-import { filterRecords, getFacetCounts } from '../../utils/filters';
+import { filterRecords, getFacetCounts, countActiveFilters } from '../../utils/filters';
 import { parseFromUrl, updateUrl } from '../../utils/url';
 import { useSidebarState } from '../../hooks/useSidebarState';
 import { useRecords } from '../../hooks/useRecords';
@@ -90,6 +90,7 @@ export default function RecordList() {
     () => deriveFilterOptions(records),
     [records],
   );
+  const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
 
   // Set callbacks
   const handleSearchChange = useCallback((value: string) => {
@@ -103,6 +104,23 @@ export default function RecordList() {
   const handleSortChange = useCallback((next: SortState) => {
     setSort(next);
   }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({
+      name: '',
+      type: [],
+      value: [],
+      containerId: '',
+      containerName: '',
+      hostname: [],
+      force: [],
+    });
+  }, []);
+
+  const resetAll = useCallback(() => {
+    setSearch('');
+    clearFilters();
+  }, [clearFilters]);
 
   // Render
   return (
@@ -121,6 +139,8 @@ export default function RecordList() {
           availableHostnames={hostnames}
           availableForce={forceValues}
           facetCounts={facetCounts}
+          activeFilterCount={activeFilterCount}
+          onClearFilters={clearFilters}
         />
       </div>
       <div className={classNames(styles.mainContent, { [styles.shifted]: showSidebar })}>
@@ -130,9 +150,18 @@ export default function RecordList() {
               <button
                 className={styles.hamburger}
                 onClick={() => setShowSidebar((s) => !s)}
-                aria-label="Toggle filters"
+                aria-label={
+                  activeFilterCount > 0
+                    ? `Toggle filters (${activeFilterCount} active)`
+                    : 'Toggle filters'
+                }
               >
                 <PanelLeft size={20} />
+                {activeFilterCount > 0 && (
+                  <span className={styles.filterBadge} aria-hidden="true">
+                    {activeFilterCount}
+                  </span>
+                )}
               </button>
             )}
             <div className={styles.searchWrapper}>
@@ -142,7 +171,14 @@ export default function RecordList() {
         </header>
         <h2 className={styles.pageTitle}>DNS Records</h2>
         {!loading && !error && (
-          <StatusBar status={status} lastUpdated={lastUpdated} onRefresh={refresh} />
+          <StatusBar
+            status={status}
+            lastUpdated={lastUpdated}
+            onRefresh={refresh}
+            shown={sortedRecords.length}
+            total={records.length}
+            noun={records.length === 1 ? 'record' : 'records'}
+          />
         )}
         {loading ? (
           <div className={styles.statusMessage} role="status" aria-live="polite">
@@ -156,7 +192,12 @@ export default function RecordList() {
             </button>
           </div>
         ) : (
-          <RecordGrid records={sortedRecords} onSelect={setActiveRecord} />
+          <RecordGrid
+            records={sortedRecords}
+            onSelect={setActiveRecord}
+            canReset={search.trim().length > 0 || activeFilterCount > 0}
+            onReset={resetAll}
+          />
         )}
       </div>
       {activeRecord && <RecordModal record={activeRecord} onClose={() => setActiveRecord(null)} />}

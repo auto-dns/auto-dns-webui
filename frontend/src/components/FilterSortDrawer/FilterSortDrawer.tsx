@@ -17,6 +17,8 @@ interface Props {
   availableHostnames: string[];
   availableForce: boolean[];
   facetCounts: FacetCounts;
+  activeFilterCount: number;
+  onClearFilters: () => void;
 }
 
 export default function FilterSortDrawer({
@@ -32,29 +34,30 @@ export default function FilterSortDrawer({
   availableHostnames,
   availableForce,
   facetCounts,
+  activeFilterCount,
+  onClearFilters,
 }: Props) {
   return (
     <div className={styles.drawer} id="filterDrawer">
       <div className={styles.header}>
-        <button
-          className={styles.hamburger}
-          onClick={onClose}
-          aria-label='Toggle filters'
-        >
+        <button className={styles.hamburger} onClick={onClose} aria-label="Toggle filters">
           <PanelLeft size={20} />
         </button>
       </div>
       <div className={styles.content}>
         <div className={styles.section}>
           <h3>Sort</h3>
-          <SortEditor
-            sort={sort}
-            onChange={onSortChange}
-            availableFields={availableSortFields}
-          />
+          <SortEditor sort={sort} onChange={onSortChange} availableFields={availableSortFields} />
         </div>
         <div className={styles.section}>
-          <h3>Filter</h3>
+          <div className={styles.sectionHead}>
+            <h3>Filter</h3>
+            {activeFilterCount > 0 && (
+              <button type="button" className={styles.clearButton} onClick={onClearFilters}>
+                Clear all
+              </button>
+            )}
+          </div>
           <FilterPanel
             filters={filters}
             onChange={onFilterChange}

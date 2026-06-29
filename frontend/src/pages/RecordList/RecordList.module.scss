@@ -84,6 +84,7 @@
         gap: var(--space-3);
 
         .hamburger {
+          position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -102,6 +103,24 @@
           &:hover {
             background-color: var(--surface-2);
             color: var(--text-strong);
+          }
+
+          .filterBadge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.1rem;
+            height: 1.1rem;
+            padding: 0 0.3rem;
+            font-size: 0.7rem;
+            font-weight: var(--weight-bold);
+            line-height: 1;
+            color: var(--accent-text);
+            background-color: var(--accent);
+            border-radius: var(--radius-full);
           }
         }
 

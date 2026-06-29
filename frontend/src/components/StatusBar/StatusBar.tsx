@@ -9,6 +9,10 @@ interface StatusBarProps {
   status: ConnectionStatus;
   lastUpdated: Date | null;
   onRefresh: () => void;
+  // Optional result count: number shown after filtering vs. the total.
+  shown?: number;
+  total?: number;
+  noun?: string;
 }
 
 const STATUS_LABEL: Record<ConnectionStatus, string> = {
@@ -20,7 +24,14 @@ const STATUS_LABEL: Record<ConnectionStatus, string> = {
 // How often the relative "updated Xs ago" label is recomputed.
 const TICK_MS = 10_000;
 
-export default function StatusBar({ status, lastUpdated, onRefresh }: StatusBarProps) {
+export default function StatusBar({
+  status,
+  lastUpdated,
+  onRefresh,
+  shown,
+  total,
+  noun = 'items',
+}: StatusBarProps) {
   // Re-render periodically so the relative timestamp stays current even when
   // no new data has arrived.
   const [, setTick] = useState(0);
@@ -29,8 +40,23 @@ export default function StatusBar({ status, lastUpdated, onRefresh }: StatusBarP
     return () => clearInterval(id);
   }, []);
 
+  const showCount = typeof shown === 'number' && typeof total === 'number';
+
   return (
     <div className={styles.statusBar}>
+      {showCount && (
+        <span className={styles.count}>
+          {shown === total ? (
+            <>
+              <strong>{total}</strong> {noun}
+            </>
+          ) : (
+            <>
+              <strong>{shown}</strong> of {total} {noun}
+            </>
+          )}
+        </span>
+      )}
       <span
         className={classNames(styles.indicator, styles[status])}
         role="status"
