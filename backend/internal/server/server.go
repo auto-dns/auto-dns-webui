@@ -44,6 +44,7 @@ func New(http *http.Server, mux *http.ServeMux, handler api.HandlerInterface, he
 func (s *Server) registerRoutes() error {
 	// API routes (instrumented for request/latency metrics).
 	s.mux.Handle("/api/records", s.metrics.InstrumentHandler("/api/records", http.HandlerFunc(s.handler.Records)))
+	s.mux.Handle("/api/hosts", s.metrics.InstrumentHandler("/api/hosts", http.HandlerFunc(s.handler.Hosts)))
 
 	// Live record stream (SSE). Deliberately not wrapped in the latency
 	// histogram: these are long-lived connections, so a request-duration

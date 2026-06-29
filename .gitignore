@@ -11,6 +11,9 @@
 # Test binary, built with `go test -c`
 *.test
 
+# Compiled backend binary (produced by `make build` / `make prod`)
+/backend/auto-dns-webui
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

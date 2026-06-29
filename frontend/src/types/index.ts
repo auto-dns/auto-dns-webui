@@ -17,6 +17,25 @@ export interface RecordEntry {
   metadata: RecordMetadata;
 }
 
+// HostContainer summarizes one container's contribution to a host's records.
+export interface HostContainer {
+  containerId: string;
+  containerName: string;
+  recordCount: number;
+}
+
+// HostSummary is the per-host aggregation served by GET /api/hosts: a
+// docker-coredns-sync node's liveness (from its etcd heartbeat) plus stats
+// derived from the DNS records it owns.
+export interface HostSummary {
+  hostname: string;
+  online: boolean;
+  recordCount: number;
+  typeCounts: Record<string, number>;
+  containers: HostContainer[];
+  lastPublished?: string;
+}
+
 export interface EnrichedRecordEntry extends RecordEntry {
   searchable: string;
 }

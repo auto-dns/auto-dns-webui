@@ -22,9 +22,10 @@ type AppConfig struct {
 }
 
 type EtcdConfig struct {
-	Host       string `mapstructure:"host"`
-	Port       int    `mapstructure:"port"`
-	PathPrefix string `mapstructure:"path_prefix"`
+	Host            string `mapstructure:"host"`
+	Port            int    `mapstructure:"port"`
+	PathPrefix      string `mapstructure:"path_prefix"`
+	HeartbeatPrefix string `mapstructure:"heartbeat_prefix"`
 }
 
 type LoggingConfig struct {
@@ -92,6 +93,7 @@ func initConfig() error {
 	viper.SetDefault("etcd.host", "localhost")
 	viper.SetDefault("etcd.port", 2379)
 	viper.SetDefault("etcd.path_prefix", "/skydns")
+	viper.SetDefault("etcd.heartbeat_prefix", "/docker-coredns-sync/heartbeat")
 	viper.SetDefault("log.level", "INFO")
 	viper.SetDefault("mcp.enabled", false)
 	viper.SetDefault("mcp.port", 0)
@@ -110,6 +112,15 @@ func initConfig() error {
 	return nil
 }
 
+// prefixesOverlap reports whether one etcd key prefix is contained within the
+// other once normalized with a trailing slash (so "/a" and "/ab" don't count
+// as overlapping, but "/a" and "/a/b" do).
+func prefixesOverlap(a, b string) bool {
+	a = strings.TrimSuffix(a, "/") + "/"
+	b = strings.TrimSuffix(b, "/") + "/"
+	return strings.HasPrefix(a, b) || strings.HasPrefix(b, a)
+}
+
 // validate checks for config consistency.
 func (c *Config) validate() error {
 	if c.App.Hostname == "" {
@@ -123,6 +134,15 @@ func (c *Config) validate() error {
 	}
 	if c.Etcd.PathPrefix == "" {
 		return fmt.Errorf("etcd.path_prefix cannot be empty")
+	}
+	if c.Etcd.HeartbeatPrefix == "" {
+		return fmt.Errorf("etcd.heartbeat_prefix cannot be empty")
+	}
+	// The DNS-record prefix and the producer's heartbeat prefix must be
+	// disjoint: if one contained the other, record reads and heartbeat reads
+	// would see each other's keys (mirrors docker-coredns-sync's own guard).
+	if prefixesOverlap(c.Etcd.PathPrefix, c.Etcd.HeartbeatPrefix) {
+		return fmt.Errorf("etcd.path_prefix (%q) and etcd.heartbeat_prefix (%q) must not overlap", c.Etcd.PathPrefix, c.Etcd.HeartbeatPrefix)
 	}
 	validLevels := map[string]struct{}{
 		"TRACE": {}, "DEBUG": {}, "INFO": {}, "WARN": {}, "ERROR": {}, "FATAL": {},

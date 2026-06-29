@@ -11,6 +11,7 @@ It optionally exposes an MCP (Model Context Protocol) server so AI tools like Cl
 - Browse all A/AAAA/CNAME records registered in etcd (SkyDNS format)
 - Filter by name, type, or source host
 - Live updates: the record list refreshes automatically as etcd changes (server-pushed over SSE, with polling fallback), plus a manual refresh and a "last updated" indicator
+- Hosts view: a **Hosts** tab summarizes each `docker-coredns-sync` node publishing records — online/offline (from the producer's etcd heartbeat) plus per-host record count, type breakdown, containers, and last-published time
 - Optional MCP server: `list_dns_records`, `get_dns_record`, `get_records_by_host`
 
 ---
@@ -51,6 +52,7 @@ All values can be set via environment variables (`AUTO_DNS_WEBUI_*`), a `config.
 | `etcd.host` | `AUTO_DNS_WEBUI_ETCD_HOST` | `localhost` | etcd host |
 | `etcd.port` | `AUTO_DNS_WEBUI_ETCD_PORT` | `2379` | etcd port |
 | `etcd.path_prefix` | `AUTO_DNS_WEBUI_ETCD_PATH_PREFIX` | `/skydns` | etcd key prefix (SkyDNS format) |
+| `etcd.heartbeat_prefix` | `AUTO_DNS_WEBUI_ETCD_HEARTBEAT_PREFIX` | `/docker-coredns-sync/heartbeat` | etcd key prefix where `docker-coredns-sync` publishes per-host liveness heartbeats (read by the Hosts view). Must not overlap `path_prefix`. |
 | `log.level` | `AUTO_DNS_WEBUI_LOG_LEVEL` | `INFO` | Log level: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL` |
 | `server.port` | `AUTO_DNS_WEBUI_SERVER_PORT` | `8080` | HTTP server port |
 | `mcp.enabled` | `AUTO_DNS_WEBUI_MCP_ENABLED` | `false` | Enable the MCP server |
@@ -73,6 +75,7 @@ etcd:
   host: localhost
   port: 2379
   path_prefix: /skydns
+  heartbeat_prefix: /docker-coredns-sync/heartbeat
 
 log:
   level: INFO
@@ -114,6 +117,7 @@ The HTTP server (`server.port`, default `8080`) exposes:
 | `/` | The web UI (embedded SPA) |
 | `/api/records` | JSON list of all DNS records |
 | `/api/records/stream` | Server-Sent Events stream of record snapshots (see below) |
+| `/api/hosts` | JSON per-host summary: liveness plus derived record stats (see below) |
 | `/healthz` | Liveness — always `200 OK` while the process is serving. Does not touch etcd. |
 | `/readyz` | Readiness — `200 OK` when etcd is reachable, `503 Service Unavailable` otherwise (bounded by a short timeout). Use this as a container/orchestrator readiness probe. |
 | `/metrics` | Prometheus metrics (see below). |
@@ -133,6 +137,28 @@ data: [{"dnsRecord":{...},"metadata":{...}}, ...]
 ```
 
 Idle connections receive a `ping` event roughly every 25 seconds to keep proxies from dropping them and to give clients a liveness signal. The web UI consumes this stream automatically and transparently falls back to polling `/api/records` if the stream is unavailable, errors, or opens but goes silent (e.g. behind a proxy that buffers responses) — if no `records` update or `ping` arrives within ~40 seconds the UI switches to polling.
+
+### Hosts view
+
+`GET /api/hosts` powers the **Hosts** tab in the UI. It returns one entry per `docker-coredns-sync` node, combining two sources that this app already reads from etcd:
+
+- **Liveness** — `docker-coredns-sync` publishes a lease-backed heartbeat key per host under `heartbeat_prefix` (`/docker-coredns-sync/heartbeat/<hostname>` by default), kept alive while the node runs and expiring automatically when it stops. A host with a present heartbeat is reported `online`.
+- **Stats** — the DNS records themselves, grouped by owning hostname: record count, a per-type breakdown, the contributing containers, and the most recent publish time.
+
+A host appears if it is currently heartbeating **or** still owns records, so an online-but-idle node and a node that has gone offline while its records linger are both visible. The heartbeat read is best-effort: if it fails, hosts are still returned (marked offline) rather than failing the request. The view polls `/api/hosts` periodically (heartbeats aren't part of the record stream).
+
+```json
+[
+  {
+    "hostname": "dns1",
+    "online": true,
+    "recordCount": 3,
+    "typeCounts": { "A": 2, "CNAME": 1 },
+    "containers": [{ "containerId": "abc123", "containerName": "web", "recordCount": 3 }],
+    "lastPublished": "2026-06-29T12:00:00Z"
+  }
+]
+```
 
 ### Health probes
 
@@ -196,6 +222,15 @@ To inspect etcd directly inside the container:
 ```bash
 etcdctl --endpoints http://etcd:2379 get --prefix /skydns
 ```
+
+---
+
+## Roadmap
+
+See [`TODO.md`](./TODO.md) for the roadmap. It indexes the live
+[GitHub issues](https://github.com/auto-dns/auto-dns-webui/issues) and
+[milestones](https://github.com/auto-dns/auto-dns-webui/milestones) (the source
+of truth) and captures longer-term ideas.
 
 ---
 
