@@ -5,18 +5,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--bg-color);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  gap: var(--space-3);
   touch-action: none;
   user-select: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 
-  @include respond-max($breakpoint-md) {
-      max-width: 200px;
+  &:hover {
+    border-color: var(--border-strong);
   }
 
   .handle {
@@ -24,43 +28,68 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
-    padding-right: 0.25rem;
+    color: var(--text-subtle);
     flex-shrink: 0;
+
+    &:active {
+      cursor: grabbing;
+    }
   }
 
   .label {
     cursor: grab;
     flex: 1;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .directionToggle {
-    display: flex;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
     background: none;
     border: none;
-    color: var(--link-color);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0;
-    height: 1.5rem; // or 100% to inherit
+    font-size: 1.05rem;
     line-height: 1;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background-color: var(--surface-3);
     }
+  }
 
   .actions {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--space-1);
 
     button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.6rem;
+      height: 1.6rem;
       background: none;
       border: none;
-      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-subtle);
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1;
-      padding: 0;
+      transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+
+      &:hover {
+        background-color: var(--surface-3);
+        color: var(--danger);
+      }
     }
   }
 }

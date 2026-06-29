@@ -1,0 +1,54 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-8); // clear the close button
+}
+
+.type {
+  @include type-badge;
+}
+
+.name {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.valueRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.arrow {
+  color: var(--text-subtle);
+  flex: 0 0 auto;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+@include modal-detail-rows(35%);
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}

@@ -1,0 +1,106 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--overlay-bg);
+  backdrop-filter: blur(2px);
+  animation: overlay-in var(--transition-base);
+
+  @include respond-max($breakpoint-md) {
+    // Dock to the bottom as a sheet on small screens.
+    align-items: flex-end;
+    padding: 0;
+  }
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  outline: none;
+  animation: dialog-in var(--ease-emphasized);
+
+  // The dialog receives focus on open for screen readers, but it isn't an
+  // interactive control, so suppress the global focus-visible ring on the
+  // container itself (inner buttons keep theirs).
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
+
+  @include respond-max($breakpoint-md) {
+    max-width: 100%;
+    max-height: 88vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom: none;
+    padding: var(--space-5) var(--space-4) var(--space-8);
+    animation: sheet-in var(--ease-emphasized);
+  }
+}
+
+.close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    background-color: var(--surface-2);
+    color: var(--text-strong);
+  }
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

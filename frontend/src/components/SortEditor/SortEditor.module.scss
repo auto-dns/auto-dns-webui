@@ -1,35 +1,53 @@
+@use '../../styles/variables' as *;
+
 .sortList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-2);
 
   .addControl {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: center;
-    margin-top: 0.25rem;
+    margin-top: var(--space-1);
 
     select {
-      font-size: 0.85rem;
-      padding: 0.35rem 0.75rem;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: var(--text-sm);
+      padding: 0.4rem 0.6rem;
+      background-color: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+      &:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--accent-ring);
+      }
     }
 
     button {
-      font-size: 0.85rem;
-      padding: 0.35rem 0.75rem;
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      flex: 0 0 auto;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--surface-1);
+      color: var(--text);
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
 
       &:hover {
-        background-color: var(--chip-bg-hover);
+        background-color: var(--surface-2);
+        border-color: var(--border-strong);
       }
     }
   }

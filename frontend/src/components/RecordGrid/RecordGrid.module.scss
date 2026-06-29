@@ -1,24 +1,4 @@
 @use '../../styles/variables' as *;
 @use '../../styles/mixins' as *;
 
-.emptyState {
-  text-align: center;
-  color: var(--text-muted);
-  padding: 3rem 1rem;
-  font-size: 1rem;
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-  padding: 0 1rem 1rem 1rem;
-  margin: 0 auto;
-  max-width: 1200px;
-  width: calc(100% - 2rem);
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  align-items: start;
-
-  @include respond-max($breakpoint-md) {
-    grid-template-columns: 1fr;
-  }
-}
+@include list-grid;

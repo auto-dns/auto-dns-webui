@@ -1,41 +1,192 @@
+// =============================================================================
+// Design tokens
+// =============================================================================
+// A single source of truth for color, spacing, type, elevation and motion.
+// Components reference these custom properties rather than hard-coded values so
+// the look stays consistent and theming (light/dark) lives in one place.
+//
+// Naming:
+//   --surface-*  layered backgrounds (0 = app, 1 = card, 2 = raised/inset)
+//   --text-*     foreground text by emphasis
+//   --border-*   hairlines and stronger dividers
+//   --accent-*   the single brand/interaction color
+//   --tag-*      categorical chip colors (used for DNS record types)
+//   --space-*    4px-based spacing scale
+//   --text-*-sz  type scale
+//   --shadow-*   elevation
+//   --radius-*   corner rounding
+// Legacy aliases (--bg-color, --card-bg, …) are kept at the bottom so any
+// not-yet-migrated rule keeps working.
+
 :root {
-  --bg-color: #ffffff;
-  --bg-muted: #e6e6e6;
-  --text-color: #111111;
-  --text-muted: #6a6a6a;
-  --link-color: #1b75d0;
-  --card-bg: #f9f9f9;
-  --card-border: #ddd;
-  --header-bg: #eef4ff;
-  --table-stripe: #f5f7fa;
-  --chip-bg-hover: #e0e0e0;
-  --accent-bg: #1b75d0;
-  --accent-text: #ffffff;
-  --count-text: #555555;
-  --count-bg-selected: #dddddd;
-  --overlay-bg: rgba(0, 0, 0, 0.4);
+  // --- Neutral surfaces & text (light) -------------------------------------
+  --surface-0: #f5f6f8; // app background
+  --surface-1: #ffffff; // cards, header, sidebar
+  --surface-2: #eef0f4; // inputs, insets, hover fills
+  --surface-3: #e4e7ec; // pressed / stronger inset
+
+  --text-strong: #15181d;
+  --text: #1f242c;
+  --text-muted: #5b6472;
+  --text-subtle: #8a93a3;
+
+  --border: #e3e6ec;
+  --border-strong: #d0d5dd;
+
+  // --- Accent --------------------------------------------------------------
+  --accent: #2f6bf0;
+  --accent-hover: #1f57d6;
+  --accent-active: #1a4cbd;
+  --accent-text: #ffffff; // text on an accent fill
+  --accent-soft: #e8f0fe; // tinted accent background (selected/subtle)
+  --accent-ring: rgba(47, 107, 240, 0.35); // focus ring
+
+  // --- Status --------------------------------------------------------------
+  --ok: #1a8f4a;
+  --ok-dot: #21b15c;
+  --warn: #b07d00;
+  --warn-dot: #e0a800;
+  --danger: #c0392b;
+  --danger-dot: #e04a3a;
+
+  // --- Categorical tags (DNS record types, facets) -------------------------
+  --tag-blue-bg: #e7eefe;
+  --tag-blue-fg: #1d4ed8;
+  --tag-cyan-bg: #def3f6;
+  --tag-cyan-fg: #0e7490;
+  --tag-purple-bg: #f1e9fe;
+  --tag-purple-fg: #7c3aed;
+  --tag-amber-bg: #fbeccd;
+  --tag-amber-fg: #b45309;
+  --tag-green-bg: #e1f6e9;
+  --tag-green-fg: #15803d;
+  --tag-pink-bg: #fce4ef;
+  --tag-pink-fg: #be1d6a;
+  --tag-gray-bg: #eaedf2;
+  --tag-gray-fg: #475467;
+
+  // --- Elevation -----------------------------------------------------------
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.1), 0 2px 4px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16), 0 4px 10px rgba(16, 24, 40, 0.08);
+  --overlay-bg: rgba(15, 18, 24, 0.45);
+
+  // --- Spacing (4px base) --------------------------------------------------
+  --space-1: 0.25rem; //  4px
+  --space-2: 0.5rem; //  8px
+  --space-3: 0.75rem; // 12px
+  --space-4: 1rem; // 16px
+  --space-5: 1.25rem; // 20px
+  --space-6: 1.5rem; // 24px
+  --space-8: 2rem; // 32px
+  --space-10: 2.5rem; // 40px
+  --space-12: 3rem; // 48px
+
+  // --- Type scale ----------------------------------------------------------
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas,
+    monospace;
+
+  --text-xs: 0.75rem; // 12px
+  --text-sm: 0.8125rem; // 13px
+  --text-md: 0.9375rem; // 15px
+  --text-lg: 1.0625rem; // 17px
+  --text-xl: 1.25rem; // 20px
+  --text-2xl: 1.5rem; // 24px
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  // --- Radii ---------------------------------------------------------------
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  // --- Motion --------------------------------------------------------------
+  --transition-fast: 0.12s ease;
+  --transition-base: 0.2s ease;
+  --ease-emphasized: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+// =============================================================================
+// Dark theme
+// =============================================================================
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #1e1e1e;
-    --bg-muted: #3a3a3a;
-    --text-color: #f0f0f0;
-    --text-muted: #999999;
-    --link-color: #9dbff1;
-    --card-bg: #2a2a2a;
-    --card-border: #444;
-    --header-bg: #333c4a;
-    --table-stripe: #2e2e2e;
-    --chip-bg-hover: #3a3a3a;
-    --accent-bg: #9dbff1;
-    --accent-text: #111111;
-    --count-text: #cccccc;
-    --count-bg-selected: #555555;
+    --surface-0: #0f1217;
+    --surface-1: #181c23;
+    --surface-2: #222730;
+    --surface-3: #2c323d;
+
+    --text-strong: #f2f4f8;
+    --text: #e3e7ee;
+    --text-muted: #99a3b2;
+    --text-subtle: #6b7280;
+
+    --border: #2a3039;
+    --border-strong: #3a414e;
+
+    --accent: #5c86f7;
+    --accent-hover: #739af9;
+    --accent-active: #84a6fa;
+    --accent-text: #0d1015;
+    --accent-soft: #1c2740;
+    --accent-ring: rgba(92, 134, 247, 0.4);
+
+    --ok: #4ad07f;
+    --ok-dot: #34c873;
+    --warn: #e0a800;
+    --warn-dot: #e0a800;
+    --danger: #f0796a;
+    --danger-dot: #e8584a;
+
+    --tag-blue-bg: #1b2a4d;
+    --tag-blue-fg: #97b6fb;
+    --tag-cyan-bg: #103138;
+    --tag-cyan-fg: #5fd3e2;
+    --tag-purple-bg: #2a2152;
+    --tag-purple-fg: #c2a4fb;
+    --tag-amber-bg: #3a2c12;
+    --tag-amber-fg: #f0c069;
+    --tag-green-bg: #143420;
+    --tag-green-fg: #67d98a;
+    --tag-pink-bg: #3b1727;
+    --tag-pink-fg: #f49bc0;
+    --tag-gray-bg: #262b34;
+    --tag-gray-fg: #aab2c0;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
     --overlay-bg: rgba(0, 0, 0, 0.6);
   }
 }
 
+// =============================================================================
+// Legacy aliases — keep older rules compiling while components migrate.
+// =============================================================================
+:root {
+  --bg-color: var(--surface-0);
+  --bg-muted: var(--surface-2);
+  --text-color: var(--text);
+  --link-color: var(--accent);
+  --card-bg: var(--surface-1);
+  --card-border: var(--border);
+  --header-bg: var(--accent-soft);
+  --table-stripe: var(--surface-2);
+  --chip-bg-hover: var(--surface-2);
+  --accent-bg: var(--accent);
+  --count-text: var(--text-muted);
+  --count-bg-selected: var(--surface-3);
+}
+
+// =============================================================================
+// Breakpoints (SCSS — used by mixins)
+// =============================================================================
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;

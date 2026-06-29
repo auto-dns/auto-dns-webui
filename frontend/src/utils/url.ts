@@ -13,6 +13,8 @@ const PARAM_KEYS = {
   force: 'force',
   // Sort
   sort: 'sort',
+  // Currently-open record detail (its getRecordKey), for deep-linking the modal
+  selected: 'record',
 } as const;
 
 // Friendly names for sort keys (for URL parameters)
@@ -27,7 +29,7 @@ const SORT_FRIENDLY_NAMES: Record<SortKey, string> = {
 
 // Reverse mapping from friendly names to full keys
 const FRIENDLY_TO_SORT_KEY: Record<string, SortKey> = Object.fromEntries(
-  Object.entries(SORT_FRIENDLY_NAMES).map(([key, friendly]) => [friendly, key as SortKey])
+  Object.entries(SORT_FRIENDLY_NAMES).map(([key, friendly]) => [friendly, key as SortKey]),
 );
 
 // Default sort configuration
@@ -39,26 +41,33 @@ function shouldOmitSortFromUrl(sort: SortState): boolean {
   if (sort.length > 1) {
     return false;
   }
-  
+
   // If there's exactly one sort and it matches the default, omit it
   if (sort.length === 1) {
     const [firstSort] = sort;
-    return firstSort.key === DEFAULT_SORT[0].key && firstSort.ascending === DEFAULT_SORT[0].ascending;
+    return (
+      firstSort.key === DEFAULT_SORT[0].key && firstSort.ascending === DEFAULT_SORT[0].ascending
+    );
   }
-  
+
   // If no sorts, omit from URL
   return true;
 }
 
 // Serialize state to URL parameters
-export function serializeToUrl(search: string, filters: Filters, sort: SortState): string {
+export function serializeToUrl(
+  search: string,
+  filters: Filters,
+  sort: SortState,
+  selectedKey?: string | null,
+): string {
   const params = new URLSearchParams();
-  
+
   // Add search
   if (search.trim()) {
     params.set(PARAM_KEYS.search, search.trim());
   }
-  
+
   // Add filters
   if (filters.name.trim()) {
     params.set(PARAM_KEYS.name, filters.name.trim());
@@ -79,18 +88,25 @@ export function serializeToUrl(search: string, filters: Filters, sort: SortState
     params.set(PARAM_KEYS.hostname, filters.hostname.join(','));
   }
   if (filters.force.length > 0) {
-    params.set(PARAM_KEYS.force, filters.force.map(f => f.toString()).join(','));
+    params.set(PARAM_KEYS.force, filters.force.map((f) => f.toString()).join(','));
   }
-  
+
   // Add sort (only if it should not be omitted)
   if (!shouldOmitSortFromUrl(sort)) {
-    const sortString = sort.map(s => {
-      const friendlyName = SORT_FRIENDLY_NAMES[s.key];
-      return `${friendlyName}:${s.ascending ? 'asc' : 'desc'}`;
-    }).join(',');
+    const sortString = sort
+      .map((s) => {
+        const friendlyName = SORT_FRIENDLY_NAMES[s.key];
+        return `${friendlyName}:${s.ascending ? 'asc' : 'desc'}`;
+      })
+      .join(',');
     params.set(PARAM_KEYS.sort, sortString);
   }
-  
+
+  // Add the open record (if any)
+  if (selectedKey) {
+    params.set(PARAM_KEYS.selected, selectedKey);
+  }
+
   return params.toString();
 }
 
@@ -99,10 +115,11 @@ export function parseFromUrl(searchParams: URLSearchParams): {
   search: string;
   filters: Filters;
   sort: SortState;
+  selectedKey: string | null;
 } {
   // Parse search
   const search = searchParams.get(PARAM_KEYS.search) || '';
-  
+
   // Parse filters
   const filters: Filters = {
     name: searchParams.get(PARAM_KEYS.name) || '',
@@ -111,30 +128,38 @@ export function parseFromUrl(searchParams: URLSearchParams): {
     containerId: searchParams.get(PARAM_KEYS.containerId) || '',
     containerName: searchParams.get(PARAM_KEYS.containerName) || '',
     hostname: searchParams.get(PARAM_KEYS.hostname)?.split(',').filter(Boolean) || [],
-    force: searchParams.get(PARAM_KEYS.force)?.split(',').filter(Boolean).map(f => f === 'true') || [],
+    force:
+      searchParams
+        .get(PARAM_KEYS.force)
+        ?.split(',')
+        .filter(Boolean)
+        .map((f) => f === 'true') || [],
   };
-  
+
   // Parse sort
   const sortParam = searchParams.get(PARAM_KEYS.sort);
   let sort: SortState = [...DEFAULT_SORT]; // Use default
-  
+
   if (sortParam) {
     try {
-      const parsedSort = sortParam.split(',').map(item => {
-        const [friendlyName, direction] = item.split(':');
-        const fullKey = FRIENDLY_TO_SORT_KEY[friendlyName];
-        if (!fullKey) {
-          throw new Error(`Invalid sort key: ${friendlyName}`);
-        }
-        return {
-          key: fullKey,
-          ascending: direction === 'asc'
-        };
-      }).filter(item => 
-        // Validate that key is a valid SortKey
-        Object.keys(SORT_FRIENDLY_NAMES).includes(item.key)
-      );
-      
+      const parsedSort = sortParam
+        .split(',')
+        .map((item) => {
+          const [friendlyName, direction] = item.split(':');
+          const fullKey = FRIENDLY_TO_SORT_KEY[friendlyName];
+          if (!fullKey) {
+            throw new Error(`Invalid sort key: ${friendlyName}`);
+          }
+          return {
+            key: fullKey,
+            ascending: direction === 'asc',
+          };
+        })
+        .filter((item) =>
+          // Validate that key is a valid SortKey
+          Object.keys(SORT_FRIENDLY_NAMES).includes(item.key),
+        );
+
       // If we got valid sort criteria, use them
       if (parsedSort.length > 0) {
         sort = parsedSort;
@@ -144,18 +169,28 @@ export function parseFromUrl(searchParams: URLSearchParams): {
       sort = [...DEFAULT_SORT];
     }
   }
-  
-  return { search, filters, sort };
+
+  const selectedKey = searchParams.get(PARAM_KEYS.selected) || null;
+
+  return { search, filters, sort, selectedKey };
 }
 
 // Update URL without page reload
-export function updateUrl(search: string, filters: Filters, sort: SortState, replace = false): void {
-  const queryString = serializeToUrl(search, filters, sort);
-  const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-  
+export function updateUrl(
+  search: string,
+  filters: Filters,
+  sort: SortState,
+  selectedKey: string | null = null,
+  replace = false,
+): void {
+  const queryString = serializeToUrl(search, filters, sort, selectedKey);
+  const newUrl = queryString
+    ? `${window.location.pathname}?${queryString}`
+    : window.location.pathname;
+
   if (replace) {
     window.history.replaceState(null, '', newUrl);
   } else {
     window.history.pushState(null, '', newUrl);
   }
-} 
+}
