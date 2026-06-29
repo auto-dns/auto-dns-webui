@@ -2,7 +2,15 @@
 
 FRONTEND_DIR=frontend
 BACKEND_DIR=backend
-OUTPUT_BIN=$(BACKEND_DIR)/auto-dns-webui
+# Binary name (built inside BACKEND_DIR) and its path from the repo root. Both
+# derive from BIN_NAME so build/prod and clean/run-prod stay in sync.
+BIN_NAME=auto-dns-webui
+OUTPUT_BIN=$(BACKEND_DIR)/$(BIN_NAME)
+# Main package path, relative to BACKEND_DIR (the Go module root).
+MAIN_PKG=./cmd/auto-dns-webui
+# Directory the frontend build is embedded from (see internal/frontend/embed.go's
+# `//go:embed dist/*`).
+EMBED_DIR=$(BACKEND_DIR)/internal/frontend/dist
 
 # --- TASKS ---
 
@@ -32,23 +40,24 @@ help:
 dev:
 	@echo "Running dev mode: Vite + Go (with reverse proxy)"
 	cd $(FRONTEND_DIR) && npm run dev & \
-	go run -tags=dev ./$(BACKEND_DIR)
+	cd $(BACKEND_DIR) && go run -tags=dev $(MAIN_PKG)
 
 build:
 	@echo "Building Go backend in dev mode..."
-	go build -tags=dev -o $(OUTPUT_BIN) ./$(BACKEND_DIR)
+	cd $(BACKEND_DIR) && go build -tags=dev -o $(BIN_NAME) $(MAIN_PKG)
 
 prod:
 	@echo "Building frontend..."
 	npm install --prefix $(FRONTEND_DIR)
 	npm run build --prefix $(FRONTEND_DIR)
 
-	@echo "Copying frontend build into backend/ for embedding..."
-	rm -rf $(BACKEND_DIR)/dist
-	cp -r $(FRONTEND_DIR)/dist $(BACKEND_DIR)/dist
+	@echo "Copying frontend build into the embed directory..."
+	mkdir -p $(EMBED_DIR)
+	find $(EMBED_DIR) -mindepth 1 ! -name .placeholder -delete 2>/dev/null || true
+	cp -r $(FRONTEND_DIR)/dist/. $(EMBED_DIR)/
 
 	@echo "Building Go backend with embedded frontend..."
-	cd $(BACKEND_DIR) && go build -o auto-dns-webui
+	cd $(BACKEND_DIR) && go build -o $(BIN_NAME) $(MAIN_PKG)
 
 run-prod: prod
 	@echo "Running production binary..."
@@ -58,6 +67,8 @@ clean:
 	@echo "Cleaning build output..."
 	rm -f $(OUTPUT_BIN)
 	rm -rf $(FRONTEND_DIR)/dist
+	@echo "Clearing embedded frontend build (keeping .placeholder)..."
+	find $(EMBED_DIR) -mindepth 1 ! -name .placeholder -delete 2>/dev/null || true
 
 init:
 	@echo "Creating .devcontainer/.env with default configuration..."
