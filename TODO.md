@@ -14,9 +14,9 @@ PR conventions.
 
 The foundational app is in place: etcd-backed record listing, the searchable /
 filterable / sortable React UI, live refresh over SSE with polling fallback
-(#23), health & readiness probes (#21), Prometheus metrics (#22), the read-only
-MCP server, and the Hosts view (#9). See [`CHANGELOG.md`](./CHANGELOG.md) for the
-per-release detail.
+(#23), health & readiness probes (#21), Prometheus metrics (#22), and the
+read-only MCP server. See [`CHANGELOG.md`](./CHANGELOG.md) for the per-release
+detail.
 
 ## In progress / open
 
