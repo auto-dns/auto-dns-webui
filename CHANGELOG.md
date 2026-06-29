@@ -10,12 +10,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > **git tag is the authoritative version** for a release — the GHCR image and
 > GitHub Release are built from it. `frontend/package.json`'s `version` tracks the
 > in-development line and is not the release source of truth. The active
-> development line is `0.9.x`. As a **downstream consumer** of the
+> development line is `0.10.x`. As a **downstream consumer** of the
 > [`docker-coredns-sync`](https://github.com/auto-dns/docker-coredns-sync) etcd
 > record schema, releases note the minimum compatible producer version when the
 > consumed schema is involved (see `CONTRIBUTING.md`).
 
 ## [Unreleased]
+
+## [0.10.0] - 2026-06-29
 
 ### Changed
 - UI/UX polish pass across the SPA. Introduced a design-token foundation
