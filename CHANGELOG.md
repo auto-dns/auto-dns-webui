@@ -17,6 +17,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+- Bumped the Go toolchain from `1.26.4` to `1.26.5` (`backend/go.mod` and the
+  `golang` builder image in `Dockerfile`) to pick up the fix for
+  [GO-2026-5856](https://pkg.go.dev/vuln/GO-2026-5856), an Encrypted Client Hello
+  privacy leak in the standard library's `crypto/tls`. The `Security` workflow's
+  `govulncheck` job resolves the toolchain from `backend/go.mod`, so it was
+  failing on `main` and on every dependency PR until this bump.
+
+### Changed
+- Dependency updates (no API, config, or MCP tool schema changes):
+  - Backend: `github.com/prometheus/client_golang` 1.23.2 → 1.24.0,
+    `go.etcd.io/etcd/client/v3` and `go.etcd.io/etcd/api/v3` 3.6.12 → 3.7.0,
+    `github.com/mark3labs/mcp-go` updated.
+  - Frontend: `lucide-react` 1.21.0 → 1.24.0, `vite` 8.1.0 → 8.1.4,
+    `vitest` 4.1.9 → 4.1.10, `typescript-eslint` 8.62.0 → 8.63.0,
+    `prettier` 3.8.5 → 3.9.5, `eslint`/`@eslint/js` 9.39.4 → 9.39.5,
+    `@types/node` 26.0.1 → 26.1.1.
+  - CI: `actions/setup-go` 6 → 7 and `actions/setup-node` 6 → 7.
+
 ## [0.10.0] - 2026-06-29
 
 ### Changed
