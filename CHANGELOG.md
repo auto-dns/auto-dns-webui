@@ -17,6 +17,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-07-27
+
 ### Security
 - Bumped the Go toolchain from `1.26.4` to `1.26.5` (`backend/go.mod` and the
   `golang` builder image in `Dockerfile`) to pick up the fix for
