@@ -17,6 +17,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Dependency updates (no API, config, or MCP tool schema changes):
+  - Backend: `github.com/prometheus/client_golang` 1.24.0 → 1.24.1,
+    `go.etcd.io/etcd/client/v3` and `go.etcd.io/etcd/api/v3` 3.7.0 → 3.7.1,
+    `github.com/mark3labs/mcp-go` 0.56.0 → 0.57.0.
+  - Frontend: `lucide-react` 1.24.0 → 1.27.0, `react`/`react-dom` 19.2.7 →
+    19.2.8, `vite` 8.1.4 → 8.1.5, `typescript-eslint` 8.63.0 → 8.65.0,
+    `prettier` 3.9.5 → 3.9.6, `globals` 17.7.0 → 17.8.0.
+
 ## [0.10.1] - 2026-07-27
 
 ### Security
